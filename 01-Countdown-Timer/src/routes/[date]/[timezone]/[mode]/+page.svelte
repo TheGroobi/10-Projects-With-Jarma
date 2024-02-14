@@ -1,68 +1,160 @@
+<svelte:head>
+    <title>Countdown Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</svelte:head>
+
 <script lang="ts" type="module">
-	import { modeStore } from '$lib/store.js';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import moment from 'moment-timezone';
+
+	let mode = $page.params.mode;
+	let date = moment($page.params.date);
+	let timezone = $page.params.timezone.replace("|", "/");
+	let currentDate = moment().tz(timezone).format();
+	
+	onMount(() => {
+		setInterval(() => {
+			currentDate = moment().tz(timezone).format();
+		}, 1000);
+	})
+	$: console.log(currentDate);
+
+	$: distance = date.diff(currentDate, 'seconds');
+	$: distanceSeconds = distance % 60;
+	$: distanceMinutes = Math.floor(distance / 60) % 60;
+	$: distanceHours = (Math.floor(distance / 3600) % 24);
+	$: distanceDays = (mode === "weeks") ? Math.floor(distance / 86400) % 7 : Math.floor(distance / 86400);
+	$: distanceWeeks = Math.floor(distance / 604800);
+
 </script>
 
 <div class="wrapper">
 	<h1>Pozostały czas</h1>
-    <p>{$modeStore}</p>
 	<div class="timer-container">
-		{#if $modeStore === "days"}
+		{#if mode === "days"}
 			<div class="days">
 				<span>Dni</span>
-				<p>15</p>
+				<p>{distanceDays}</p>
 			</div>
-		{:else if $modeStore === "days-hours"}
+		{:else if mode === "days-hours"}
 			<div class="days">
 				<span>Dni</span>
-				<p>15</p>
+				<p>{distanceDays}</p>
 			</div>
 			<div class="hours">
 				<span>Godzina</span>
-				<p>15</p>
+				<p>{distanceHours}</p>
 			</div>
 			<div class="minutes">
 				<span>Minuty</span>
-				<p>15</p>
+				<p>{distanceMinutes}</p>
 			</div>
 			<div class="seconds">
 				<span>Sekundy</span>
-				<p>15</p>
+				<p>{distanceSeconds}</p>
 			</div>
 		{:else}
 			<div class="weeks">
 				<span>Tydzień</span>
-				<p>15</p>
+				<p>{distanceWeeks}</p>
 			</div>
 			<div class="days">
 				<span>Dni</span>
-				<p>15</p>
+				<p>{distanceDays}</p>
 			</div>
 			<div class="hours">
 				<span>Godzina</span>
-				<p>15</p>
+				<p>{distanceHours}</p>
 			</div>
 			<div class="minutes">
 				<span>Minuty</span>
-				<p>15</p>
+				<p>{distanceMinutes}</p>
 			</div>
 			<div class="seconds">
 				<span>Sekundy</span>
-				<p>15</p>
+				<p>{distanceSeconds}</p>
 			</div>
 		{/if}
 	</div>
+	<a href="../../../" type="button" class="submit-btn">Wygeneruj nowy timer</a>
 </div>
 
 <style lang="scss">
+	:global(:root) {
+		--text: rgba(30, 41, 59, 1);
+		--text2: rgba(100, 116, 139, 1);
+		--bg: rgba(241, 245, 249, 1);
+		--white: rgba(255, 255, 255, 1);
+	}
+	:global(body) {
+		background: var(--bg);
+		color: rgba(30, 41, 59, 1);
+		margin: 0;
+	}
+	:global(*) {
+		font-family: 'Inter', sans-serif;
+		font-weight: 500;
+		margin: 0;
+		text-decoration: none;
+	}
 	.wrapper {
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
+		align-items: center;
+		justify-content: center;
+		min-height: 100svh;
 		h1 {
 			color: var(--text);
 			font-size: 20px;
-			text-align: left;
 			font-weight: 600;
 		}
+		.timer-container {
+			background: var(--white);
+			margin-top: 1.5rem;
+			margin-bottom: 2rem;
+			padding: 1rem 1.5rem;
+			border-radius: 4px;
+			display: flex;
+			gap: 1rem;
+			.weeks,
+			.days,
+			.hours,
+			.minutes,
+			.seconds {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				span {
+					font-size: 10px;
+					font-weight: 700;
+					color: var(--text2);
+					text-transform: uppercase;
+				}
+				p {
+					font-size: 14px;
+					font-weight: 600;
+					color: var(--text);
+					margin: 0;
+					margin-top: 0.5rem;
+				}
+			}
+		}
+		.submit-btn {
+            background: rgba(14, 165, 233, 1);
+            color: var(--white);
+            font-size: 14px;
+            border-radius: 8px;
+            padding: 0.9rem 2rem;
+            border: none;
+			font-family: 'Inter', sans-serif;
+			cursor: pointer;
+			transition: background 0.3s ease;
+			&:hover {
+				background: rgba(14, 165, 233, 0.9);
+			}
+        }
 	}
 </style>

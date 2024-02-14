@@ -6,8 +6,8 @@
 </svelte:head>
 <script lang="ts" type="module">
     import moment from 'moment';
-    import { modeStore } from '$lib/store.js';
 
+    $: currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
     let day: number = moment().date();
     let month: number = moment().month() + 1;
     let year: number = moment().year();
@@ -15,12 +15,10 @@
     let minutes: number = moment().minutes();
     let seconds: number = moment().seconds();
 
-    let mode: string = "days";
+    let mode: string = "days-hours";
+    let timezone: string = `Europe|Warsaw`;
+    $: date = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
 
-    let timezone: string = "1";
-    let date: string = `${year}-${month}-${day}`;
-
-    $: modeStore.set(mode);
     function addClassOpen(e: Event) {
         let currentTarget = e.currentTarget as HTMLSelectElement;
         if (currentTarget.parentElement && currentTarget.parentElement.classList.contains('open')) {
@@ -35,22 +33,20 @@
             currentTarget.parentElement.classList.remove('open');
         }
     }
-    function createDate() {
-        if (mode === "weeks") {
-            date = `${year}-${month}-${day}T${hour + Number(timezone)}:${minutes}:${seconds}`;
-        } else if (mode === "days") {
-            date = `${day}`;
-        } else {
-            date = `${day}-${hour + Number(timezone)}:${minutes}:${seconds}`;
-        }
-        console.log(date);
-    }
-    function handleSubmit(e: Event) {
+    function handleButtonClick(e: Event) {
         e.preventDefault();
-        createDate();
-        window.location.href = `./${date}/${timezone}/${mode}`;
+        if ((moment(date).diff(currentDate, 'seconds')) <= 0) {
+            alert('Ustaw datę w przyszłości');
+            return;
+        }
+        if (moment(date).diff(currentDate, 'days') <= 0 && mode === "days") {
+            alert('Ustaw datę w przyszłości');
+            return;
+        }
+        //add checking if the date is in the future for other timezones
+        let url = `/${date}/${timezone}/${mode}`;
+        window.location.href = url;
     }
-    //store doesn't export the mode as it should 
 </script>
 <form class="wrapper">
     <h1>Podaj datę do odliczania</h1>
@@ -141,40 +137,40 @@
     <div class="timezone-dropwdown-container">
         <label for="timezone-input" class="title">Wybierz strefę czasową</label>
         <div class="dropdown-container">
-            <select 
+            <select
                 name="timezone"
                 id="timezone-input"
                 on:click={addClassOpen}
                 on:blur={removeClassOpen}
                 bind:value={timezone}
                 >
-                    <option value="-12">GMT-12 (Baker Island)</option>
-                    <option value="-11">GMT-11 (American Samoa)</option>
-                    <option value="-10">GMT-10 (Hawaii)</option>
-                    <option value="-9">GMT-9 (Alaska)</option>
-                    <option value="-8">GMT-8 (Pacific Time)</option>
-                    <option value="-7">GMT-7 (Mountain Time)</option>
-                    <option value="-6">GMT-6 (Central Time)</option>
-                    <option value="-5">GMT-5 (Eastern Time)</option>
-                    <option value="-4">GMT-4 (Atlantic Time)</option>
-                    <option value="-3">GMT-3 (Argentina, Brazil, Chile)</option>
-                    <option value="-2">GMT-2 (Falkland Islands, South Georgia and the South Sandwich Islands)</option>
-                    <option value="-1">GMT-1 (Cape Verde, Azores)</option>
-                    <option value="0">GMT+0 (Greenwich Mean Time)</option>
-                    <option value="1">GMT+1 (UK, Ireland, Germany)</option>
-                    <option value="2">GMT+2 (South Africa, Egypt, Greece)</option>
-                    <option value="3">GMT+3 (Russia, Saudi Arabia, Turkey)</option>
-                    <option value="4">GMT+4 (Azerbaijan, United Arab Emirates, Armenia)</option>
-                    <option value="5">GMT+5 (Pakistan, Uzbekistan, Kazakhstan)</option>
-                    <option value="6">GMT+6 (Kazakhstan, Bangladesh, Myanmar)</option>
-                    <option value="7">GMT+7 (Thailand, Vietnam, Indonesia)</option>
-                    <option value="8">GMT+8 (China, Australia, Malaysia)</option>
-                    <option value="9">GMT+9 (Japan, South Korea, North Korea)</option>
-                    <option value="10">GMT+10 (Australia, Papua New Guinea, Guam)</option>
-                    <option value="11">GMT+11 (Solomon Islands, Vanuatu, New Caledonia)</option>
-                    <option value="12">GMT+12 (New Zealand, Fiji, Marshall Islands)</option>
-                    <option value="13">GMT+13 (Tonga, Samoa, Kiribati)</option>
-                    <option value="14">GMT+14 (Kiribati, Line Islands)</option>
+                    <option data-timezone="-12" value="Pacific|Pago_Pago">GMT-12 (Baker Island)</option>
+                    <option data-timezone="-11" value="Pacific|Pago_Pago">GMT-11 (American Samoa)</option>
+                    <option data-timezone="-10" value="Pacific|Honolulu">GMT-10 (Hawaii)</option>
+                    <option data-timezone="-9" value="America|Anchorage">GMT-9 (Alaska)</option>
+                    <option data-timezone="-8" value="America|Los_Angeles">GMT-8 (Pacific Time)</option>
+                    <option data-timezone="-7" value="America|Denver">GMT-7 (Mountain Time)</option>
+                    <option data-timezone="-6" value="America|Chicago">GMT-6 (Central Time)</option>
+                    <option data-timezone="-5" value="America|New_York">GMT-5 (Eastern Time)</option>
+                    <option data-timezone="-4" value="America|Halifax">GMT-4 (Atlantic Time)</option>
+                    <option data-timezone="-3" value="America|Argentina|Buenos_Aires">GMT-3 (Argentina, Brazil, Chile)</option>
+                    <option data-timezone="-2" value="Atlantic|South_Georgia">GMT-2 (Falkland Islands, South Georgia and the South Sandwich Islands)</option>
+                    <option data-timezone="-1" value="Atlantic|Cape_Verde">GMT-1 (Cape Verde, Azores)</option>
+                    <option data-timezone="0" value="Etc|GMT">GMT+0 (Greenwich Mean Time)</option>
+                    <option data-timezone="1" value="Europe|Warsaw">GMT+1 (UK, Ireland, Germany)</option>
+                    <option data-timezone="2" value="Africa|Johannesburg">GMT+2 (South Africa, Egypt, Greece)</option>
+                    <option data-timezone="3" value="Europe|Moscow">GMT+3 (Russia, Saudi Arabia, Turkey)</option>
+                    <option data-timezone="4" value="Asia|Baku">GMT+4 (Azerbaijan, United Arab Emirates, Armenia)</option>
+                    <option data-timezone="5" value="Asia|Karachi">GMT+5 (Pakistan, Uzbekistan, Kazakhstan)</option>
+                    <option data-timezone="6" value="Asia|Yangon">GMT+6 (Kazakhstan, Bangladesh, Myanmar)</option>
+                    <option data-timezone="7" value="Asia|Bangkok">GMT+7 (Thailand, Vietnam, Indonesia)</option>
+                    <option data-timezone="8" value="Asia|Shanghai">GMT+8 (China, Australia, Malaysia)</option>
+                    <option data-timezone="9" value="Asia|Tokyo">GMT+9 (Japan, South Korea, North Korea)</option>
+                    <option data-timezone="10" value="Australia|Brisbane">GMT+10 (Australia, Papua New Guinea, Guam)</option>
+                    <option data-timezone="11" value="Pacific|Guadalcanal">GMT+11 (Solomon Islands, Vanuatu, New Caledonia)</option>
+                    <option data-timezone="12" value="Pacific|Auckland">GMT+12 (New Zealand, Fiji, Marshall Islands)</option>
+                    <option data-timezone="13" value="Pacific|Tongatapu">GMT+13 (Tonga, Samoa, Kiribati)</option>
+                    <option data-timezone="14" value="Pacific|Kiritimati">GMT+14 (Kiribati, Line Islands)</option>
                 </select>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path fill="#1E293B" fill-rule="evenodd" d="M3.97 6.22a.75.75 0 0 1 1.06 0L9 10.19l3.97-3.97a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
         </div>
@@ -218,10 +214,10 @@
             </label>
         </div>
     </div>
-    <button 
-        type="submit" 
+    <button  
+        on:click={handleButtonClick}
+        type="button"
         class="submit-btn"
-        on:click={handleSubmit}
         >Wygeneruj czas
     </button>
 </form>
@@ -231,19 +227,22 @@
     :global(:root) {
         --white: rgba(255, 255, 255, 1);
         --text: rgba(30, 41, 59, 1);
+        --text2: rgba(100, 116, 139, 1);
+        --bg: rgba(241, 245, 249, 1);
     }
     :global(body) {
         margin: 0;
         padding: 0;
         display: grid;
         place-items: center;
-        height: 100vh;
-        background-color: rgba(241, 245, 249, 1);
+        height: 100svh;
+        background-color: var(--bg);
     }
     :global(*) {
         margin: 0;
         font-family: 'Inter', sans-serif;
         font-weight: 500;
+        text-decoration: none;
     }
     .wrapper {
         display: flex;
@@ -257,14 +256,15 @@
         }
         .input-container {
             display: flex;
-            gap: 1rem;
+            justify-content: space-between;
             input {
                 padding: 0.5rem 1rem;
                 border: none;
                 border-radius: 4px;
-                background-color: rgba(241, 245, 249, 1);
+                background-color: var(--bg);
                 text-align: center;
                 font-size: 14px;
+                font-weight: 600;
                 color: var(--text);
                 &:focus {
                     outline: none;
@@ -302,7 +302,7 @@
             } 
         }
         .title {
-            color: rgba(100, 116, 139, 1);
+            color: var(--text2);
             font-weight: 700;
             font-size: 10px;
             text-transform: uppercase;
@@ -411,6 +411,11 @@
             padding: 0.9rem 2rem;
             border: none;
             align-self: flex-end;
+            transition: background 0.3s ease;
+            cursor: pointer;
+			&:hover {
+				background: rgba(14, 165, 233, 0.9);
+			}
         }
     }
 </style>
