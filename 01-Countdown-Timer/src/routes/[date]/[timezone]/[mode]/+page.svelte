@@ -1,35 +1,39 @@
-<svelte:head>
-    <title>Countdown Timer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</svelte:head>
-
 <script lang="ts" type="module">
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import moment from 'moment-timezone';
+	import { page } from "$app/stores";
+	import { onMount } from "svelte";
+	import moment from "moment-timezone";
 
 	let mode = $page.params.mode;
-	let date = moment($page.params.date);
 	let timezone = $page.params.timezone.replace("|", "/");
-	let currentDate = moment().tz(timezone).format();
-	
+	let date = moment($page.params.date).tz(timezone);
+	let currentDate = moment().tz(timezone);
+	// $: console.log(date.diff(currentDate, 'seconds'));
 	onMount(() => {
 		setInterval(() => {
-			currentDate = moment().tz(timezone).format();
+			currentDate = moment().tz(timezone);
 		}, 1000);
-	})
-	$: console.log(currentDate);
+	});
 
-	$: distance = date.diff(currentDate, 'seconds');
+	$: distance = date.diff(currentDate, "seconds");
 	$: distanceSeconds = distance % 60;
 	$: distanceMinutes = Math.floor(distance / 60) % 60;
-	$: distanceHours = (Math.floor(distance / 3600) % 24);
-	$: distanceDays = (mode === "weeks") ? Math.floor(distance / 86400) % 7 : Math.floor(distance / 86400);
+	$: distanceHours = Math.floor(distance / 3600) % 24;
+	$: distanceDays =
+		mode === "weeks"
+			? Math.floor(distance / 86400) % 7
+			: Math.floor(distance / 86400);
 	$: distanceWeeks = Math.floor(distance / 604800);
-
 </script>
+
+<svelte:head>
+	<title>Countdown Timer</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+		rel="stylesheet"
+	/>
+</svelte:head>
 
 <div class="wrapper">
 	<h1>Pozostały czas</h1>
@@ -95,7 +99,7 @@
 		margin: 0;
 	}
 	:global(*) {
-		font-family: 'Inter', sans-serif;
+		font-family: "Inter", sans-serif;
 		font-weight: 500;
 		margin: 0;
 		text-decoration: none;
@@ -143,18 +147,18 @@
 			}
 		}
 		.submit-btn {
-            background: rgba(14, 165, 233, 1);
-            color: var(--white);
-            font-size: 14px;
-            border-radius: 8px;
-            padding: 0.9rem 2rem;
-            border: none;
-			font-family: 'Inter', sans-serif;
+			background: rgba(14, 165, 233, 1);
+			color: var(--white);
+			font-size: 14px;
+			border-radius: 8px;
+			padding: 0.9rem 2rem;
+			border: none;
+			font-family: "Inter", sans-serif;
 			cursor: pointer;
 			transition: background 0.3s ease;
 			&:hover {
 				background: rgba(14, 165, 233, 0.9);
 			}
-        }
+		}
 	}
 </style>
