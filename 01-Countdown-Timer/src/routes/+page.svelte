@@ -1,5 +1,6 @@
 <script lang="ts" type="module">
 	import moment from "moment-timezone";
+	import { onMount } from "svelte";
 
 	let day: number = moment().date();
 	let month: number = moment().month() + 1;
@@ -7,43 +8,46 @@
 	let hour: number = moment().hour();
 	let minutes: number = moment().minutes();
 	let seconds: number = moment().seconds();
+
 	let mode: string = "days-hours";
-	let timezone: string = `Europe|Warsaw`;
-	let currentDate = moment();
+	let timezone: string = `Europe/Warsaw`;
 	$: date = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
 
-	function addClassOpen(e: Event) {
-		let currentTarget = e.currentTarget as HTMLSelectElement;
-		if (
-			currentTarget.parentElement &&
-			currentTarget.parentElement.classList.contains("open")
-		) {
-			currentTarget.parentElement.classList.remove("open");
-		} else if (currentTarget.parentElement) {
-			currentTarget.parentElement.classList.add("open");
-		}
-	}
-	function removeClassOpen(e: Event) {
-		let currentTarget = e.currentTarget as HTMLSelectElement;
-		if (
-			currentTarget.parentElement &&
-			currentTarget.parentElement.classList.contains("open")
-		) {
-			currentTarget.parentElement.classList.remove("open");
-		}
-	}
+	let now = moment();
+	onMount(() => {
+		setInterval(() => {
+			now = moment();
+		}, 1000);
+	});
+	let selectedDate = moment.tz(moment(date), timezone);
+	let currentOffset = now.utcOffset();
+	let selectedOffset = selectedDate.utcOffset();
+	let offset = selectedOffset ? currentOffset - selectedOffset : selectedOffset;
+	let selectedDateWithOffset = selectedDate.add(offset, "minutes");
+	$: distanceSeconds = selectedDateWithOffset.diff(now, "seconds");
+	$: console.log(distanceSeconds);
+
+	// get the timezone selected by the user
+	// get the utc offset of the timezone
+	// get the utc offset of the current time
+	// change the offset of the current time to the offset of the selected timezone
+	// check if the current time is in the past
+	// if it is, alert the user to select a future date
+	// else, redirect the user to the countdown page
+
+	let openSelect = false;
+	
 	function handleButtonClick(e: Event) {
 		e.preventDefault();
-		if (moment(date).diff(currentDate, "seconds") <= 0) {
+		if (distanceSeconds <= 0) {
 			alert("Ustaw datę w przyszłości");
 			return;
 		}
-		if (moment(date).diff(currentDate, "days") <= 0 && mode === "days") {
-			alert("Ustaw datę w przyszłości");
-			return;
-		}
-		//add checking if the date is in the future for other timezones
-		let url = `/${date}/${timezone}/${mode}`;
+		// if (distanceDays <= 0 && mode === "days") {
+		// 	alert("Ustaw datę w przyszłości");
+		// 	return;
+		// }
+		let url = `/${date}/${timezone.replace("/", "|")}/${mode}`;
 		window.location.href = url;
 	}
 </script>
@@ -145,71 +149,17 @@
 	</div>
 	<div class="timezone-dropwdown-container">
 		<label for="timezone-input" class="title">Wybierz strefę czasową</label>
-		<div class="dropdown-container">
+		<div class="dropdown-container" class:open={openSelect}>
 			<select
 				name="timezone"
 				id="timezone-input"
-				on:click={addClassOpen}
-				on:blur={removeClassOpen}
+				on:click={() => openSelect = !openSelect}
+				on:blur={() => openSelect = false}
 				bind:value={timezone}
 			>
-				<option value="Pacific|Pago_Pago">GMT-12 (Baker Island)</option>
-				<option value="Pacific|Pago_Pago">GMT-11 (American Samoa)</option>
-				<option value="Pacific|Honolulu">GMT-10 (Hawaii)</option>
-				<option value="America|Anchorage">GMT-9 (Alaska)</option>
-				<option value="America|Los_Angeles">GMT-8 (Pacific Time)</option>
-				<option value="America|Denver">GMT-7 (Mountain Time)</option>
-				<option value="America|Chicago">GMT-6 (Central Time)</option>
-				<option value="America|New_York">GMT-5 (Eastern Time)</option>
-				<option value="America|Halifax">GMT-4 (Atlantic Time)</option>
-				<option value="America|Argentina|Buenos_Aires"
-					>GMT-3 (Argentina, Brazil, Chile)</option
-				>
-				<option value="Atlantic|South_Georgia"
-					>GMT-2 (Falkland Islands, South Georgia and the South Sandwich
-					Islands)</option
-				>
-				<option value="Atlantic|Cape_Verde">GMT-1 (Cape Verde, Azores)</option>
-				<option value="Etc|GMT">GMT+0 (Greenwich Mean Time)</option>
-				<option value="Europe|Warsaw">GMT+1 (UK, Ireland, Germany)</option>
-				<option value="Africa|Johannesburg"
-					>GMT+2 (South Africa, Egypt, Greece)</option
-				>
-				<option value="Europe|Moscow"
-					>GMT+3 (Russia, Saudi Arabia, Turkey)</option
-				>
-				<option value="Asia|Baku"
-					>GMT+4 (Azerbaijan, United Arab Emirates, Armenia)</option
-				>
-				<option value="Asia|Karachi"
-					>GMT+5 (Pakistan, Uzbekistan, Kazakhstan)</option
-				>
-				<option value="Asia|Yangon"
-					>GMT+6 (Kazakhstan, Bangladesh, Myanmar)</option
-				>
-				<option value="Asia|Bangkok"
-					>GMT+7 (Thailand, Vietnam, Indonesia)</option
-				>
-				<option value="Asia|Shanghai">GMT+8 (China, Australia, Malaysia)</option
-				>
-				<option value="Asia|Tokyo"
-					>GMT+9 (Japan, South Korea, North Korea)</option
-				>
-				<option value="Australia|Brisbane"
-					>GMT+10 (Australia, Papua New Guinea, Guam)</option
-				>
-				<option value="Pacific|Guadalcanal"
-					>GMT+11 (Solomon Islands, Vanuatu, New Caledonia)</option
-				>
-				<option value="Pacific|Auckland"
-					>GMT+12 (New Zealand, Fiji, Marshall Islands)</option
-				>
-				<option value="Pacific|Tongatapu"
-					>GMT+13 (Tonga, Samoa, Kiribati)</option
-				>
-				<option value="Pacific|Kiritimati"
-					>GMT+14 (Kiribati, Line Islands)</option
-				>
+			{#each moment.tz.names() as tz}
+				<option value={tz}>{tz}</option>
+			{/each}
 			</select>
 			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"
 				><path

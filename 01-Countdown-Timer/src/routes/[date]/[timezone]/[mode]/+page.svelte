@@ -5,16 +5,18 @@
 
 	let mode = $page.params.mode;
 	let timezone = $page.params.timezone.replace("|", "/");
-	let date = moment($page.params.date).tz(timezone);
-	let currentDate = moment().tz(timezone);
-	// $: console.log(date.diff(currentDate, 'seconds'));
+	let now = moment();
+	let dateTimezone = moment.tz(timezone);
+	let offset = now.utcOffset() - dateTimezone.utcOffset();
+	let date = moment($page.params.date).add(offset, "minutes");
+
 	onMount(() => {
 		setInterval(() => {
-			currentDate = moment().tz(timezone);
+			now = moment();
 		}, 1000);
 	});
 
-	$: distance = date.diff(currentDate, "seconds");
+	$: distance = date.diff(now, 'seconds');
 	$: distanceSeconds = distance % 60;
 	$: distanceMinutes = Math.floor(distance / 60) % 60;
 	$: distanceHours = Math.floor(distance / 3600) % 24;
