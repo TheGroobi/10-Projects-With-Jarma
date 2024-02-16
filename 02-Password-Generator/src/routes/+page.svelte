@@ -1,5 +1,4 @@
 <script lang="ts">
-    
     $: password = '&oH2++Ao3S';
     let length: number = 23;
     let uppercaseLetters: boolean = true;
@@ -25,6 +24,9 @@
         navigator.clipboard.writeText(password);
     }
 </script>
+<svelte:head>
+    <title>Password Generator</title>
+</svelte:head>
 <main class="wrapper">
     <div class="password-container">
         <p class="title">Wygeneruj hasło</p>
