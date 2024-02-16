@@ -18,9 +18,6 @@
         for (let i = 0; i < length; i++) {
             password += selection[Math.floor(Math.random() * selection.length)];
         }
-        if (password.length === 0) password = '';
-        if (password.length < 47) password = generatePassword();
-        console.log(password)
         return password;
     }
 
@@ -77,6 +74,7 @@
             type="checkbox"
             name="uppercase-letters"
             bind:checked={uppercaseLetters}
+            on:change={generatePassword}
             >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.0791 3.08752C12.307 3.31533 12.307 3.68467 12.0791 3.91248L5.66248 10.3291C5.43467 10.557 5.06533 10.557 4.83752 10.3291L1.92085 7.41248C1.69305 7.18467 1.69305 6.81533 1.92085 6.58752C2.14866 6.35972 2.51801 6.35972 2.74581 6.58752L5.25 9.09171L11.2542 3.08752C11.482 2.85972 11.8513 2.85972 12.0791 3.08752Z" fill="white"/></svg>
         </div>
@@ -87,6 +85,7 @@
             type="checkbox"
             name="digits"
             bind:checked={digits}
+            on:change={generatePassword}
             >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.0791 3.08752C12.307 3.31533 12.307 3.68467 12.0791 3.91248L5.66248 10.3291C5.43467 10.557 5.06533 10.557 4.83752 10.3291L1.92085 7.41248C1.69305 7.18467 1.69305 6.81533 1.92085 6.58752C2.14866 6.35972 2.51801 6.35972 2.74581 6.58752L5.25 9.09171L11.2542 3.08752C11.482 2.85972 11.8513 2.85972 12.0791 3.08752Z" fill="white"/></svg>
         </div>
@@ -97,6 +96,7 @@
             type="checkbox"
             name="special-chars"
             bind:checked={specialChars}
+            on:change={generatePassword}
             >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.0791 3.08752C12.307 3.31533 12.307 3.68467 12.0791 3.91248L5.66248 10.3291C5.43467 10.557 5.06533 10.557 4.83752 10.3291L1.92085 7.41248C1.69305 7.18467 1.69305 6.81533 1.92085 6.58752C2.14866 6.35972 2.51801 6.35972 2.74581 6.58752L5.25 9.09171L11.2542 3.08752C11.482 2.85972 11.8513 2.85972 12.0791 3.08752Z" fill="white"/></svg>
         </div>
@@ -189,14 +189,14 @@
                     cursor: pointer;
                     margin-top: -0.25rem;
                 }
-                &::-moz-range-thumb {
-                    width: 0.75rem;
-                    aspect-ratio: 1;
-                    background-color: $blue;
-                    border-radius: 50%;
+                &::-webkit-slider-runnable-track {
                     cursor: pointer;
-                    margin-top: -0.25rem;
+                    width: 11.625rem;
+                    height: 0.25rem;
+                    background: $blue;
+                    border-radius: 8px;
                 }
+            
                 &::-ms-thumb {
                     width: 0.75rem;
                     aspect-ratio: 1;
@@ -212,19 +212,25 @@
                     color: transparent;
                     top: 0;
                 }
-                &::-webkit-slider-runnable-track {
+                &::-moz-range-thumb {
+                    width: 0.75rem;
+                    height: 0.75rem;
+                    background-color: $blue;
+                    border-radius: 50%;
                     cursor: pointer;
-                    width: 11.625rem;
-                    height: 0.25rem;
-                    background: $blue;
-                    border-radius: 8px;
+                    margin-top: -0.25rem;
+                    border: none;
                 }
                 &::-moz-range-track {
                     cursor: pointer;
                     width: 23rem;
                     height: 0.25rem;
-                    background: $blue;
+                    background: $background-2;
                     border-radius: 8px;
+                }
+                &::-moz-range-progress {
+                    border-radius: 8px;
+                    background-color: $blue;
                 }
             }
             input[name=password-length-input] {
