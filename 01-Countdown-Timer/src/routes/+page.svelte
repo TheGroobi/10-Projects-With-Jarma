@@ -1,6 +1,5 @@
 <script lang="ts" type="module">
 	import moment from "moment-timezone";
-	import { onMount } from "svelte";
 
 	let day: number = moment().date();
 	let month: number = moment().month() + 1;
@@ -10,52 +9,35 @@
 	let seconds: number = moment().seconds();
 
 	let mode: string = "days-hours";
-	let timezone: string = `Europe/Warsaw`;
+	let timezone: string = moment.tz.guess();
 	$: date = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
 
-	let now = moment();
-	onMount(() => {
-		setInterval(() => {
-			now = moment();
-		}, 1000);
-	});
-	let selectedDate = moment.tz(moment(date), timezone);
-	let currentOffset = now.utcOffset();
-	let selectedOffset = selectedDate.utcOffset();
-	let offset = selectedOffset ? currentOffset - selectedOffset : selectedOffset;
-	let selectedDateWithOffset = selectedDate.add(offset, "minutes");
-	$: distanceSeconds = selectedDateWithOffset.diff(now, "seconds");
-	$: console.log(distanceSeconds);
-
-	// get the timezone selected by the user
-	// get the utc offset of the timezone
-	// get the utc offset of the current time
-	// change the offset of the current time to the offset of the selected timezone
-	// check if the current time is in the past
-	// if it is, alert the user to select a future date
-	// else, redirect the user to the countdown page
-
 	let openSelect = false;
-	
+
 	function handleButtonClick(e: Event) {
 		e.preventDefault();
+		let now = moment();
+		let selectedDate = moment(date);
+		let offset = now.utcOffset() - moment.tz(timezone).utcOffset();
+		now = now.add(-offset, "minutes");
+		let distanceSeconds = selectedDate.diff(now, "seconds");
+		let distanceDays = selectedDate.diff(now, "days");
 		if (distanceSeconds <= 0) {
 			alert("Ustaw datę w przyszłości");
 			return;
 		}
-		// if (distanceDays <= 0 && mode === "days") {
-		// 	alert("Ustaw datę w przyszłości");
-		// 	return;
-		// }
+		if (distanceDays <= 0 && mode === "days") {
+			alert("Ustaw datę w przyszłości");
+			return;
+		}
 		let url = `/${date}/${timezone.replace("/", "|")}/${mode}`;
 		window.location.href = url;
 	}
 </script>
-
 <svelte:head>
 	<title>Countdown Timer</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anynymous" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 		rel="stylesheet"
@@ -285,6 +267,7 @@
 		.input-container {
 			display: flex;
 			justify-content: space-between;
+			gap: 1rem;
 			input {
 				padding: 0.5rem 1rem;
 				border: none;

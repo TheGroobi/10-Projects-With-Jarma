@@ -25,6 +25,7 @@
 			? Math.floor(distance / 86400) % 7
 			: Math.floor(distance / 86400);
 	$: distanceWeeks = Math.floor(distance / 604800);
+
 </script>
 
 <svelte:head>
