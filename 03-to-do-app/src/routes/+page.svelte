@@ -3,6 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
+    import { dndzone } from 'svelte-dnd-action';
 
 let taskInputValue: string = '';
 let validation: boolean = true;
@@ -12,7 +13,7 @@ function capitalizeFirstLetter(input: string) {
         taskInputValue = input[0].toUpperCase() + input.slice(1);
     }
 }
-let taskList = [{value: 'aplikacja do zarządzania zadaniami w svelcie (ToDo List)', checked: false}, {value: '1', checked: false}, {value: '2', checked: false}, {value: '3', checked: false}, {value: '4', checked: false}, {value: '5', checked: false}, {value: '6', checked: false}, {value: '7', checked: false}, {value: '8', checked: false}, {value: '9', checked: false}, {value: '10', checked: false}];
+let taskList = [{value: 'aplikacja do zarządzania zadaniami w svelcie (ToDo List)', checked: false, id: 0}, {value: '1', checked: false, id: 1}, {value: '2', checked: false, id: 2}, {value: '3', checked: false, id: 3}, {value: '4', checked: false, id: 4}, {value: '5', checked: false, id: 5}, {value: '6', checked: false, id: 6}, {value: '7', checked: false, id: 7}, {value: '8', checked: false, id: 8}, {value: '9', checked: false, id: 9}, {value: '10', checked: false, id: 10}];
 
 function addTask() {
     if (taskInputValue === '') {
@@ -21,7 +22,7 @@ function addTask() {
     } else {
         validation = true;
         capitalizeFirstLetter(taskInputValue);
-        const task = { value: taskInputValue, checked: false}
+        const task = { value: taskInputValue, checked: false, id: taskList.length + 1}
         taskList = [...taskList, task];
         taskInputValue = '';
     }
@@ -37,11 +38,25 @@ function moveDownTask(i: number) {
     taskList = [...taskList, removedTask[0]];
 }
 
+function handleConsider(e: any) {
+    console.log('consider', e.detail);
+    taskList = e.detail.items;
+}
+function handleFinalize(e: any) {
+    console.log('finalize', e.detail);
+    taskList = e.detail.items;
+}
+
 </script>
 
 <main class="wrapper">
     <h1>Lista zadań</h1>
-    <div class="task-container">
+    <div 
+        class="task-container"
+        use:dndzone={{ items: taskList }}
+        on:consider={handleConsider}
+        on:finalize={handleFinalize}
+    >
             {#each taskList as task, i}
                 <div class="task">
                     <input
@@ -57,6 +72,7 @@ function moveDownTask(i: number) {
                     </button>
                 </div>
             {/each}
+        </div>
         <form>
             <input 
             bind:value={taskInputValue}
@@ -71,7 +87,6 @@ function moveDownTask(i: number) {
         {#if validation === false}
             <p class="error">Zadanie musi mieć treść</p>
         {/if}
-    </div>
 </main>
 <style lang="scss">
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
@@ -114,8 +129,8 @@ function moveDownTask(i: number) {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2rem;
         h1 {
+            margin-bottom: 2rem;
             color: $text;
             font-size: 1.25rem;
             font-weight: 600;
@@ -140,6 +155,7 @@ function moveDownTask(i: number) {
                     -webkit-appearance: none;
                     -ms-appearance: none;
                     height: 1.5rem;
+                    transition: all 0.2s ease-in-out;
                     &::after {
                         content: '';
                         display: inline-block;
@@ -192,8 +208,11 @@ function moveDownTask(i: number) {
                     }
                 }
             }
+        }
             form {
                 position: relative;
+                width: 26.25rem;
+                margin-top: 0.5rem;
                 input {
                     @include input;
                     outline: none;
@@ -226,11 +245,11 @@ function moveDownTask(i: number) {
                     }
                 }
             }
-        }
         .error {
             color: red;
             font-size: 0.65rem;
             font-weight: 700;
+            margin-top: 0.5rem;
         }
     }
 </style>
