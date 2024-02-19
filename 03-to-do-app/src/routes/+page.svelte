@@ -1,62 +1,14 @@
 <script lang="ts" type="module">
 	import { flip } from "svelte/animate";
 	import { fade, scale } from "svelte/transition";
+	import { enhance } from "$app/forms";
 
-	let taskInputValue: string = "";
-	let validation: boolean = true;
-	let maxTask: boolean = true;
+	export let data;
+	let taskInputValue: string;
     let taskDragging: any;
-	export let taskList = [
-		{
-			value: "aplikacja do zarządzania zadaniami w svelcie (ToDo List)",
-			checked: false,
-			id: 0,
-		},
-		{ value: "1", checked: false, id: 1 },
-		{ value: "2", checked: false, id: 2 },
-		{ value: "3", checked: false, id: 3 },
-		{ value: "4", checked: false, id: 4 },
-		{ value: "5", checked: false, id: 5 },
-		{ value: "6", checked: false, id: 6 },
-		{ value: "7", checked: false, id: 7 },
-		{ value: "8", checked: false, id: 8 },
-		{ value: "9", checked: false, id: 9 },
-		{ value: "10", checked: false, id: 10 },
-	];
-
-	function capitalizeFirstLetter(input: string) {
-		if (input.length) {
-			taskInputValue = input[0].toUpperCase() + input.slice(1);
-		}
-	}
-
-	function addTask() {
-		if (taskList.length <= 15) {
-			maxTask = true;
-			if (taskInputValue === "") {
-				validation = false;
-				return;
-			} else {
-				validation = true;
-				capitalizeFirstLetter(taskInputValue);
-				const task = {
-					value: taskInputValue,
-					checked: false,
-					id: taskList.length + 1,
-				};
-				taskList = [...taskList, task];
-				taskInputValue = "";
-			}
-		} else {
-			maxTask = false;
-			return;
-		}
-	}
+	let taskList = JSON.parse(data.taskList);
 
 	function removeTask(i: number) {
-		if (taskList.length <= 16) {
-			maxTask = true;
-		}
 		taskList.splice(i, 1);
 		taskList = [...taskList];
 	}
@@ -70,6 +22,7 @@
 			taskList = [...movedTask, ...taskList];
 		}
 	}
+
 	function taskListDragging(e: DragEvent) {
 		const id = (e.target as HTMLElement).getAttribute("id");
 		const task = taskList.find((task) => task.id === Number(id));
@@ -79,6 +32,7 @@
 			taskDragging = null;
 		}
 	}
+
 	function assignedDrop(e: DragEvent) {
 		if (!taskDragging) return;
 		const dropTarget = e.target as HTMLElement;
@@ -103,6 +57,7 @@
 
 <main class="wrapper">
 	<h1>Lista zadań</h1>
+	<form method="POST">
 	<div
 		on:drop={assignedDrop}
 		on:dragover={(e) => e.preventDefault()}
@@ -114,9 +69,9 @@
 					class="task"
 					on:drag={taskListDragging}
 					draggable="true"
-					id={task.id.toString()}
+					id={task.id}
 					out:fade
-					animate:flip={{ delay: 200, duration: 1500 - i * 50 }}
+					animate:flip={{ duration: 1000 }}
 					class:completed-task={task.checked}
 				>
 					<input
@@ -125,6 +80,7 @@
 						bind:checked={task.checked}
 						on:change={() => moveDownTask(i)}
 					/>
+					<input type="text" name="taskValue" bind:value={task.value} hidden>
 					{#if task.checked}
 						<svg
 							transition:scale
@@ -141,7 +97,9 @@
 						>
 					{/if}
 					<span class:completed={task.checked}>{task.value}</span>
-					<button type="button" on:click={() => removeTask(i)}>
+					<button 
+						type="button"
+						formaction="?/removeTask">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -159,35 +117,34 @@
 				</li>
 			{/each}
 		</ul>
-	</div>
-	<form method="POST">
-		<input
-			bind:value={taskInputValue}
-			name="task-input"
-			type="text"
-			placeholder="Wpisz treść zadania"
-		/>
-		<button type="submit" on:click={addTask}>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class="lucide lucide-send-horizontal"
-				><path d="m3 3 3 9-3 9 19-9Z" /><path d="M6 12h16" /></svg
-			>
-		</button>
+		<div class="submit-input">
+			<input
+				bind:value={taskInputValue}
+				name="taskInput"
+				type="text"
+				class="form-input"
+				placeholder="Wpisz treść zadania"
+			/>
+			<button type="submit" class="submit-btn">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="lucide lucide-send-horizontal form-submit-svg"
+					><path d="m3 3 3 9-3 9 19-9Z" /><path d="M6 12h16" /></svg
+				>
+			</button>
+		</div>
+		</div>
 	</form>
-	{#if validation === false}
-		<p class="error" transition:scale>Zadanie musi mieć treść</p>
-	{/if}
-	{#if maxTask === false}
-		<p class="error" transition:scale>Możesz dodać maksymalnie 15 zadań</p>
+	{#if data.error}
+		<p class="error" transition:scale>{data.error}</p>
 	{/if}
 </main>
 
@@ -319,39 +276,43 @@
 			background-color: $whiteFade !important;
 		}
 		form {
-			position: relative;
 			width: 26.25rem;
 			margin-top: 0.5rem;
-			input {
+			.form-input {
 				@include input;
 				outline: none;
 				border: none;
+				position: relative;
 				&::placeholder {
 					color: $text-completed;
 					opacity: 1;
 				}
 			}
-			button {
-				padding: 0;
-				background-color: transparent;
-				position: absolute;
-				outline: none;
-				border: none;
-				top: 0.825rem;
-				right: 1rem;
-				width: 1rem;
-				height: 1rem;
-				&:hover {
-					svg {
-						color: $checkbox-green;
-					}
-				}
-				svg {
-					pointer-events: none;
-					color: $text;
+			.submit-input {
+				margin-top: 0.5rem;
+				position: relative;
+				button {
+					padding: 0;
+					background-color: transparent;
+					position: absolute;
+					outline: none;
+					border: none;
+					top: 0.825rem;
+					right: 1rem;
 					width: 1rem;
 					height: 1rem;
-					transition: all 0.1s ease-in-out;
+					&:hover {
+						.form-submit-svg {
+							color: $checkbox-green;
+						}
+					}
+					.form-submit-svg {
+						pointer-events: none;
+						color: $text;
+						width: 1rem;
+						height: 1rem;
+						transition: all 0.1s ease-in-out;
+					}
 				}
 			}
 		}
