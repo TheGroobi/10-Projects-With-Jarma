@@ -36,6 +36,7 @@
 				];
 			}
 		}
+		taskDragging = null;
 	}
 </script>
 
@@ -59,15 +60,28 @@
 					class:completed-task={task.checked}
 					draggable={task.checked ? false : true}
 					animate:flip
-					out:fade>
+					out:fade
+				>
 					<form method="POST" action="?/checkTask" use:enhance>
 						<button
 							type="submit"
 							class="checkbox-btn"
-							class:checked={task.checked}>
+							class:checked={task.checked}
+						>
 							<input type="hidden" value={task.id} name="checkbox" />
 							{#if task.checked}
-								<svg class="check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14" ><path fill="#fff" fill-rule="evenodd" d="M12.08 3.088a.583.583 0 0 1 0 .824L5.661 10.33a.583.583 0 0 1-.824 0L1.92 7.412a.583.583 0 0 1 .825-.824L5.25 9.092l6.004-6.004a.583.583 0 0 1 .825 0Z" clip-rule="evenodd" /></svg>
+								<svg
+									class="check"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 14 14"
+									><path
+										fill="#fff"
+										fill-rule="evenodd"
+										d="M12.08 3.088a.583.583 0 0 1 0 .824L5.661 10.33a.583.583 0 0 1-.824 0L1.92 7.412a.583.583 0 0 1 .825-.824L5.25 9.092l6.004-6.004a.583.583 0 0 1 .825 0Z"
+										clip-rule="evenodd"
+									/></svg
+								>
 							{/if}
 						</button>
 					</form>
@@ -75,7 +89,19 @@
 					<form method="POST" action="?/removeTask" use:enhance>
 						<input type="hidden" name="taskId" value={task.id} />
 						<button type="submit" class="delete-btn">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="lucide lucide-x"
+								><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg
+							>
 						</button>
 					</form>
 				</li>

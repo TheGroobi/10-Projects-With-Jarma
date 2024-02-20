@@ -32,7 +32,7 @@ export const actions = {
         taskListChecked
             ? taskList = JSON.stringify([...taskListNotChecked, task, ...taskListChecked])
             : taskList = JSON.stringify([...taskList, task])
-            
+
         cookies.set('task', taskList, { path: '/', expires });
     },
 
