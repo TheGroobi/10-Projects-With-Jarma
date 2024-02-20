@@ -4,28 +4,14 @@
 	import { enhance } from "$app/forms";
 
 	export let data;
-	let taskInputValue: string;
-    let taskDragging: any;
-	let taskList = JSON.parse(data.taskList);
-
-	function removeTask(i: number) {
-		taskList.splice(i, 1);
-		taskList = [...taskList];
-	}
-
-	function moveDownTask(i: number) {
-		if (taskList[i].checked) {
-			const movedTask = taskList.splice(i, 1);
-			taskList = [...taskList, movedTask[0]];
-		} else {
-			const movedTask = taskList.splice(i, 1);
-			taskList = [...movedTask, ...taskList];
-		}
-	}
+	let taskDragging: any;
+	$: taskList = data.taskList
+		? JSON.parse(data.taskList)
+		: [{ value: "Add your first task to start!", id: 0, checked: false }];
 
 	function taskListDragging(e: DragEvent) {
 		const id = (e.target as HTMLElement).getAttribute("id");
-		const task = taskList.find((task) => task.id === Number(id));
+		const task = taskList.find((task: any) => task.id === Number(id));
 		if (task && !task.checked) {
 			taskDragging = task;
 		} else {
@@ -38,7 +24,9 @@
 		const dropTarget = e.target as HTMLElement;
 		if (dropTarget.nodeName === "LI") {
 			const id = dropTarget.getAttribute("id");
-			const dropTagetTask = taskList.find((task) => task.id === Number(id));
+			const dropTagetTask = taskList.find(
+				(task: any) => task.id === Number(id)
+			);
 			if (dropTagetTask && !dropTagetTask.checked) {
 				const dropTargetIndex = taskList.indexOf(dropTagetTask);
 				taskList.splice(taskList.indexOf(taskDragging), 1);
@@ -57,7 +45,6 @@
 
 <main class="wrapper">
 	<h1>Lista zadań</h1>
-	<form method="POST">
 	<div
 		on:drop={assignedDrop}
 		on:dragover={(e) => e.preventDefault()}
@@ -68,81 +55,58 @@
 				<li
 					class="task"
 					on:drag={taskListDragging}
-					draggable="true"
 					id={task.id}
-					out:fade
-					animate:flip={{ duration: 1000 }}
 					class:completed-task={task.checked}
-				>
-					<input
-						type="checkbox"
-						name="task-checkbox"
-						bind:checked={task.checked}
-						on:change={() => moveDownTask(i)}
-					/>
-					<input type="text" name="taskValue" bind:value={task.value} hidden>
-					{#if task.checked}
-						<svg
-							transition:scale
-							class="check"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 14 14"
-							><path
-								fill="#fff"
-								fill-rule="evenodd"
-								d="M12.08 3.088a.583.583 0 0 1 0 .824L5.661 10.33a.583.583 0 0 1-.824 0L1.92 7.412a.583.583 0 0 1 .825-.824L5.25 9.092l6.004-6.004a.583.583 0 0 1 .825 0Z"
-								clip-rule="evenodd"
-							/></svg
-						>
-					{/if}
+					draggable={task.checked ? false : true}
+					animate:flip
+					out:fade>
+					<form method="POST" action="?/checkTask" use:enhance>
+						<button
+							type="submit"
+							class="checkbox-btn"
+							class:checked={task.checked}>
+							<input type="hidden" value={task.id} name="checkbox" />
+							{#if task.checked}
+								<svg class="check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14" ><path fill="#fff" fill-rule="evenodd" d="M12.08 3.088a.583.583 0 0 1 0 .824L5.661 10.33a.583.583 0 0 1-.824 0L1.92 7.412a.583.583 0 0 1 .825-.824L5.25 9.092l6.004-6.004a.583.583 0 0 1 .825 0Z" clip-rule="evenodd" /></svg>
+							{/if}
+						</button>
+					</form>
 					<span class:completed={task.checked}>{task.value}</span>
-					<button 
-						type="button"
-						formaction="?/removeTask">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							class="lucide lucide-x"
-							><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg
-						>
-					</button>
+					<form method="POST" action="?/removeTask" use:enhance>
+						<input type="hidden" name="taskId" value={task.id} />
+						<button type="submit" class="delete-btn">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+						</button>
+					</form>
 				</li>
 			{/each}
 		</ul>
-		<div class="submit-input">
-			<input
-				bind:value={taskInputValue}
-				name="taskInput"
-				type="text"
-				class="form-input"
-				placeholder="Wpisz treść zadania"
-			/>
-			<button type="submit" class="submit-btn">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					class="lucide lucide-send-horizontal form-submit-svg"
-					><path d="m3 3 3 9-3 9 19-9Z" /><path d="M6 12h16" /></svg
-				>
-			</button>
-		</div>
-		</div>
-	</form>
+		<form method="POST" action="?/addTask" use:enhance>
+			<div class="submit-input">
+				<input
+					name="taskInput"
+					type="text"
+					class="form-input"
+					placeholder="Wpisz treść zadania"
+				/>
+				<button type="submit" class="submit-btn">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="lucide lucide-send-horizontal form-submit-svg"
+						><path d="m3 3 3 9-3 9 19-9Z" /><path d="M6 12h16" /></svg
+					>
+				</button>
+			</div>
+		</form>
+	</div>
 	{#if data.error}
 		<p class="error" transition:scale>{data.error}</p>
 	{/if}
@@ -197,6 +161,19 @@
 			font-weight: 600;
 			letter-spacing: -0.1px;
 		}
+		button {
+			border: none;
+			outline: none;
+			padding: 0;
+			background-color: transparent;
+			&:hover {
+				cursor: pointer;
+			}
+		}
+		svg {
+			transition: all 0.1s ease-in-out;
+			pointer-events: none;
+		}
 		.task-container {
 			display: flex;
 			flex-direction: column;
@@ -205,79 +182,68 @@
 			position: relative;
 			padding-inline-start: 0;
 			.task {
-				display: flex;
 				gap: 0.75rem;
+				display: flex;
 				position: relative;
 				@include input;
 				text-wrap: wrap;
 				word-break: break-word;
-				input {
-					appearance: none;
-					-moz-appearance: none;
-					-webkit-appearance: none;
-					-ms-appearance: none;
+				position: relative;
+				form {
 					height: 1.5rem;
-					transition: all 0.2s ease-in-out;
-					&::after {
-						content: "";
-						display: inline-block;
-						width: 1.5rem;
+					.checkbox-btn {
 						height: 1.5rem;
-						border-radius: 3px;
-						background-color: $background;
+						width: 1.5rem;
+						position: relative;
+						&::after {
+							content: "";
+							display: inline-block;
+							width: 1.5rem;
+							height: 1.5rem;
+							border-radius: 3px;
+							background-color: $background;
+						}
+						&.checked::after {
+							background-color: $checkbox-green;
+						}
 					}
-					&:checked::after {
-						background-color: $checkbox-green;
-					}
-					&:hover {
-						cursor: pointer;
-					}
-				}
-				input:checked + .check {
-					display: block;
 				}
 				.check {
-					display: none;
-					pointer-events: none;
 					width: 0.875rem;
 					height: 0.875rem;
-					left: 1.31rem;
 					position: absolute;
+					left: 50%;
+					top: 50%;
+					transform: translate(-50%, -50%);
 				}
-				input:checked + .check + span {
-					text-decoration: line-through;
-					color: $text-completed;
-				}
-				button {
+				.delete-btn {
 					width: 1rem;
 					height: 1rem;
-					padding: 0;
-					background-color: transparent;
-					outline: none;
 					border: none;
 					position: absolute;
 					right: 1rem;
+					top: 1rem;
 					&:hover {
 						svg {
 							color: red;
 						}
 					}
 					svg {
-						pointer-events: none;
 						color: $text;
 						width: 1rem;
 						height: 1rem;
-						transition: all 0.1s ease-in-out;
 					}
 				}
 			}
+		}
+		.completed {
+			text-decoration: line-through;
+			opacity: 0.5;
 		}
 		.completed-task {
 			background-color: $whiteFade !important;
 		}
 		form {
-			width: 26.25rem;
-			margin-top: 0.5rem;
 			.form-input {
 				@include input;
 				outline: none;
@@ -292,11 +258,7 @@
 				margin-top: 0.5rem;
 				position: relative;
 				button {
-					padding: 0;
-					background-color: transparent;
 					position: absolute;
-					outline: none;
-					border: none;
 					top: 0.825rem;
 					right: 1rem;
 					width: 1rem;
@@ -307,11 +269,9 @@
 						}
 					}
 					.form-submit-svg {
-						pointer-events: none;
 						color: $text;
 						width: 1rem;
 						height: 1rem;
-						transition: all 0.1s ease-in-out;
 					}
 				}
 			}
