@@ -3,6 +3,7 @@
 	import { fade, scale } from "svelte/transition";
 	import { enhance } from "$app/forms";
 
+	export let form;
 	export let data;
 	let taskDragging: any;
 	let dropTargetIndex: any;
@@ -28,14 +29,17 @@
 				dropTargetIndex = taskList.indexOf(dropTagetTask);
 				updateOrder();
 				taskList.splice(taskList.indexOf(taskDragging), 1);
-				taskList = [...taskList.splice(dropTargetIndex, 0, taskDragging), ...taskList];
+				taskList = [
+					...taskList.splice(dropTargetIndex, 0, taskDragging),
+					...taskList,
+				];
 			}
 		}
 		dropTargetIndex = null;
 		taskDragging = null;
 	}
 	async function updateOrder() {
-		const response = await fetch("/api", {
+		await fetch("/api", {
 			method: "POST",
 			body: JSON.stringify({
 				dropTargetIndex,
@@ -54,25 +58,23 @@
 
 <main class="wrapper">
 	<h1>Lista zadań</h1>
-	<div on:drop={assignedDrop} on:dragover|preventDefault role="list">
+	<div on:drop="{assignedDrop}" on:dragover|preventDefault role="list">
 		<ul class="task-container">
 			{#each taskList as task, i (task.id)}
 				<li
 					class="task droppable"
-					on:drag={taskListDragging}
-					id={task.id}
-					class:completed-task={task.checked}
-					draggable={task.checked ? false : true}
+					on:drag="{taskListDragging}"
+					id="{task.id}"
+					class:completed-task="{task.checked}"
+					draggable="{task.checked ? false : true}"
 					animate:flip
-					out:fade
-				>
+					out:fade>
 					<form method="POST" action="?/checkTask" use:enhance>
 						<button
 							type="submit"
 							class="checkbox-btn droppable"
-							class:checked={task.checked}
-						>
-							<input type="hidden" value={task.id} name="checkbox" />
+							class:checked="{task.checked}">
+							<input type="hidden" value="{task.id}" name="checkbox" />
 							{#if task.checked}
 								<svg
 									class="check"
@@ -83,14 +85,15 @@
 										fill="#fff"
 										fill-rule="evenodd"
 										d="M12.08 3.088a.583.583 0 0 1 0 .824L5.661 10.33a.583.583 0 0 1-.824 0L1.92 7.412a.583.583 0 0 1 .825-.824L5.25 9.092l6.004-6.004a.583.583 0 0 1 .825 0Z"
-										clip-rule="evenodd"
-									/></svg>
+										clip-rule="evenodd"></path
+									></svg>
 							{/if}
 						</button>
 					</form>
-					<span class:completed={task.checked} class="droppable">{task.value}</span>
+					<span class:completed="{task.checked}" class="droppable"
+						>{task.value}</span>
 					<form method="POST" action="?/removeTask" use:enhance>
-						<input type="hidden" name="taskId" value={task.id} />
+						<input type="hidden" name="taskId" value="{task.id}" />
 						<button type="submit" class="delete-btn droppable">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -102,8 +105,8 @@
 								stroke-width="2"
 								stroke-linecap="round"
 								stroke-linejoin="round"
-								class="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" 
-								/></svg>
+								class="lucide lucide-x"
+								><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
 						</button>
 					</form>
 				</li>
@@ -115,8 +118,7 @@
 					name="taskInput"
 					type="text"
 					class="form-input"
-					placeholder="Wpisz treść zadania"
-				/>
+					placeholder="Wpisz treść zadania" />
 				<button type="submit" class="submit-btn">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -129,14 +131,14 @@
 						stroke-linecap="round"
 						stroke-linejoin="round"
 						class="lucide lucide-send-horizontal form-submit-svg"
-						><path d="m3 3 3 9-3 9 19-9Z" /><path d="M6 12h16" /></svg
-					>
+						><path d="m3 3 3 9-3 9 19-9Z"></path><path d="M6 12h16"></path
+						></svg>
 				</button>
 			</div>
 		</form>
 	</div>
-	{#if data.error}
-		<p class="error" transition:scale>{data.error}</p>
+	{#if form?.error ?? ""}
+		<p class="error" transition:scale>{form?.error ?? ""}</p>
 	{/if}
 </main>
 
