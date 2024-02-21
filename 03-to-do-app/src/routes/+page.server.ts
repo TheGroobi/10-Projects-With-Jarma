@@ -70,6 +70,7 @@ export const actions = {
 
     changeOrderOfTask: async ({ request, cookies}) => {
         const data = await request.formData();
+        console.log(data)
         //pass the grabbed task 
         //pass the dropped on task
         //taskList.splice(grabbedTaskIndex, 1)

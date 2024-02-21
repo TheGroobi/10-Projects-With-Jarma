@@ -5,6 +5,7 @@
 
 	export let data;
 	let taskDragging: any;
+	let dropTargetIndex: any;
 	$: taskList = data.taskList
 		? JSON.parse(data.taskList)
 		: [{ value: "Add your first task to start!", id: 0, checked: false }];
@@ -12,31 +13,38 @@
 	function taskListDragging(e: DragEvent) {
 		const id = (e.target as HTMLElement).getAttribute("id");
 		const task = taskList.find((task: any) => task.id === Number(id));
-		if (task && !task.checked) {
-			taskDragging = task;
-		} else {
-			taskDragging = null;
-		}
+		taskDragging = task;
 	}
 
 	function assignedDrop(e: DragEvent) {
 		if (!taskDragging) return;
 		const dropTarget = e.target as HTMLElement;
-		if (dropTarget.nodeName === "LI") {
-			const id = dropTarget.getAttribute("id");
+		if (dropTarget.classList.contains("droppable")) {
+			const id = dropTarget.closest("LI")?.getAttribute("id");
 			const dropTagetTask = taskList.find(
 				(task: any) => task.id === Number(id)
 			);
 			if (dropTagetTask && !dropTagetTask.checked) {
-				const dropTargetIndex = taskList.indexOf(dropTagetTask);
+				dropTargetIndex = taskList.indexOf(dropTagetTask);
+				updateOrder();
 				taskList.splice(taskList.indexOf(taskDragging), 1);
-				taskList = [
-					...taskList.splice(dropTargetIndex, 0, taskDragging),
-					...taskList,
-				];
+				taskList = [...taskList.splice(dropTargetIndex, 0, taskDragging), ...taskList];
 			}
 		}
+		dropTargetIndex = null;
 		taskDragging = null;
+	}
+	async function updateOrder() {
+		const response = await fetch("/api", {
+			method: "POST",
+			body: JSON.stringify({
+				dropTargetIndex,
+				taskDragging: taskList.indexOf(taskDragging),
+			}),
+			headers: {
+				"content-type": "application/json",
+			},
+		});
 	}
 </script>
 
@@ -46,15 +54,11 @@
 
 <main class="wrapper">
 	<h1>Lista zadań</h1>
-	<div
-		on:drop={assignedDrop}
-		on:dragover={(e) => e.preventDefault()}
-		role="list"
-	>
+	<div on:drop={assignedDrop} on:dragover|preventDefault role="list">
 		<ul class="task-container">
 			{#each taskList as task, i (task.id)}
 				<li
-					class="task"
+					class="task droppable"
 					on:drag={taskListDragging}
 					id={task.id}
 					class:completed-task={task.checked}
@@ -65,7 +69,7 @@
 					<form method="POST" action="?/checkTask" use:enhance>
 						<button
 							type="submit"
-							class="checkbox-btn"
+							class="checkbox-btn droppable"
 							class:checked={task.checked}
 						>
 							<input type="hidden" value={task.id} name="checkbox" />
@@ -80,15 +84,14 @@
 										fill-rule="evenodd"
 										d="M12.08 3.088a.583.583 0 0 1 0 .824L5.661 10.33a.583.583 0 0 1-.824 0L1.92 7.412a.583.583 0 0 1 .825-.824L5.25 9.092l6.004-6.004a.583.583 0 0 1 .825 0Z"
 										clip-rule="evenodd"
-									/></svg
-								>
+									/></svg>
 							{/if}
 						</button>
 					</form>
-					<span class:completed={task.checked}>{task.value}</span>
+					<span class:completed={task.checked} class="droppable">{task.value}</span>
 					<form method="POST" action="?/removeTask" use:enhance>
 						<input type="hidden" name="taskId" value={task.id} />
-						<button type="submit" class="delete-btn">
+						<button type="submit" class="delete-btn droppable">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="24"
@@ -99,9 +102,8 @@
 								stroke-width="2"
 								stroke-linecap="round"
 								stroke-linejoin="round"
-								class="lucide lucide-x"
-								><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg
-							>
+								class="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" 
+								/></svg>
 						</button>
 					</form>
 				</li>
