@@ -1,7 +1,24 @@
 <script lang="ts">
 	import Timer from "$lib/Timer.svelte";
-	import QuestionCounter from "$lib/QuestionCounter.svelte";
-	let sAnswerSelected: string = "a";
+	import { enhance } from '$app/forms';
+
+	let nCurrentQuestion: number = 6;
+	let nAllQuestions: number = 12;
+
+	let sAnswerSelected: string;
+	
+	$: nTimeleft = 100;
+	$: nMinutesLeft = Math.floor(nTimeleft / 60);
+	$: nSecondsLeft = nTimeleft % 60;
+	function fnTimeCountdown() {
+		nTimeleft--
+	}
+	function fnStartTimer() {
+		setInterval(fnTimeCountdown, 1000)
+	}
+	let HTMLrootElement: HTMLElement;
+	$: HTMLrootElement && HTMLrootElement.style.setProperty("--width", `${nTimeleft}%`);
+
 </script>
 
 <svelte:head>
@@ -18,9 +35,20 @@
 
 <main class="sm:p-8 bg-slate-200 w-min p-4">
 	<div class="sm:p-16 bg-bgSecondary flex flex-col gap-6 p-8">
-		<Timer sCountdownTimer="{'12:12'}" />
-		<div class="py-8 px-6 flex flex-col gap-8 bg-white">
-			<QuestionCounter />
+		<Timer sCountdownTimer="{`${nMinutesLeft}:${nSecondsLeft}`}" />
+		<div
+			class="py-8 px-6 flex flex-col gap-8 bg-white border rounded border-stroke">
+			<div class="flex justify-between items-center sm:flex-row flex-col gap-2">
+				<span
+					class="text-slate-400 uppercase font-bold text-xs break-normal w-max"
+					>Pytanie {nCurrentQuestion} Z {nAllQuestions}</span>
+				<div
+					bind:this="{HTMLrootElement}"
+					class="h-1 w-60 bg-slate-200 rounded-lg relative">
+					<div class="teal-progress h-1 bg-teal-500 rounded-lg absolute left-0 transition-all duration-300 ease-out">
+					</div>
+				</div>
+			</div>
 			<div class="flex flex-col gap-4 w-80 sm:w-94">
 				<h1 class="text-2xl tracking-tight font-bold text-text">
 					Jakie jest idealne wewnętrzne ustawienie temperatury dla steka
@@ -32,8 +60,7 @@
 					tego stopnia wysmażenia?
 				</h2>
 			</div>
-			<div
-				class="grid grid-rows-2 grid-cols-2 gap-4 text-sm text-text">
+			<div class="grid grid-rows-2 grid-cols-2 gap-4 text-sm text-text">
 				<button
 					class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
 					class:orange-500="{sAnswerSelected === 'a'}"
@@ -79,9 +106,10 @@
 					<span class="text-pretty">Fetched Answer</span>
 				</button>
 			</div>
-
-			<form action="?/submitAnswer" method="POST" class="self-end">
+			<!-- method="POST" action="?/submitAnswer" use:enhance-->
+			<form class="self-end">
 				<button
+					on:click|once={fnStartTimer}
 					type="submit"
 					class="py-2 px-4 bg-emerald-500 rounded text-white font-bold text-sm"
 					>Prześlij odpowiedź</button>
@@ -95,5 +123,11 @@
 		min-height: 100vh;
 		display: grid;
 		place-items: center;
+	}
+	:root {
+		--width: inherit;
+	}
+	.teal-progress {
+		width: var(--width);
 	}
 </style>
