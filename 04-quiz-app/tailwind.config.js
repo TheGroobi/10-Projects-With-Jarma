@@ -13,7 +13,7 @@ export default {
         'text2': '#64748B'
       },
       spacing: {
-
+        '94': '23.5rem'
       }
     }
   },

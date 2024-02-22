@@ -1,8 +1,9 @@
 <script lang="ts">
-	export let countdownTimer: any;
+	export let sCountdownTimer: string;
 </script>
 
-<div class="flex items-center gap-3 px-4 py-2 border-stroke border rounded-3xl">
+<div
+	class="flex items-center gap-3 px-4 py-2 border-stroke border rounded-3xl w-full">
 	<svg
 		width="16"
 		height="16"
@@ -29,6 +30,6 @@
 	</svg>
 	<span class="text-text font-bold uppercase text-xs"
 		>Pozostały czas:
-		<span class="text-sky-500">{countdownTimer}</span>
+		<span class="text-sky-500">{sCountdownTimer}</span>
 	</span>
 </div>
