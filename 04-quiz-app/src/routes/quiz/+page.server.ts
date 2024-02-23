@@ -1,4 +1,4 @@
-/** @type {import('./$types').PageServerLoad} */
+/** @type {import('../$types').PageServerLoad} */
 import { db } from "$lib/firebase";
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 
