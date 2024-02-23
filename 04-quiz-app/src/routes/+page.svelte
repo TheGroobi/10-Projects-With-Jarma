@@ -1,31 +1,57 @@
-<script lang="ts">
+<script lang="ts" type="module">
 	import Timer from "$lib/Timer.svelte";
 	import { onMount } from "svelte";
 	import { enhance } from "$app/forms";
+	import { goto } from "$app/navigation";
+	export let data: any;
 
-	let nCurrentQuestion: number = 6;
-	let nAllQuestions: number = 12;
+	$: nCurrentQuestion = 0;
+	$: nAllQuestions = data.questions.length;
 	let sAnswerSelected: string;
-
-	$: nTimeleft = 5;
+	export let nPoints: number = 0;
+	export const nMaxPoints: number = data.questions.length;
+	$: nTimeleft = 120;
 	$: nMinutesLeft = Math.floor(nTimeleft / 60);
-	$: nSecondsLeft = nTimeleft < 10 ? "0" + (nTimeleft % 60) : nTimeleft % 60;
-
+	$: nSecondsLeft = fnPadZero(nTimeleft % 60);
 	let intervalId: any = null;
 	const fnInterval = () => {
 		if (nTimeleft) {
 			nTimeleft--;
 		} else {
 			clearInterval(intervalId);
+			//and submit answer
 		}
 	};
+
 	onMount(() => {
 		intervalId = setInterval(fnInterval, 1000);
 	});
+
+	function fnPadZero(n: number) {
+		if (n < 10) {
+			return "0" + n;
+		} else {
+			return n;
+		}
+	}
+
+	function fnHandleSubmitBtn() {
+		nTimeleft = 120;
+		if (nCurrentQuestion + 1 >= nAllQuestions) {
+			window.location.href = `/${nPoints}/${nMaxPoints}`;
+		} else {
+			if (sAnswerSelected === data.questions[nCurrentQuestion].sCorrectAnswer) {
+				nPoints++;
+			}
+			nCurrentQuestion++;
+			sAnswerSelected = "";
+		}
+	}
+
+	$: nWidth = Math.floor(((nCurrentQuestion + 1) / nAllQuestions) * 100);
 	let HTMLrootElement: HTMLElement;
 	$: HTMLrootElement &&
-		HTMLrootElement.style.setProperty("--width", `${nTimeleft}%`);
-	$: console.log(sAnswerSelected);
+		HTMLrootElement.style.setProperty("--width", `${nWidth}%`);
 </script>
 
 <svelte:head>
@@ -40,98 +66,89 @@
 		rel="stylesheet" />
 </svelte:head>
 
-<main class="sm:p-8 bg-slate-200 w-min p-4">
-	<div class="sm:p-16 bg-bgSecondary flex flex-col gap-6 p-8">
-		<Timer sCountdownTimer="{`${nMinutesLeft}:${nSecondsLeft}`}" />
+<Timer sCountdownTimer="{`${nMinutesLeft}:${nSecondsLeft}`}" />
+<div
+	class="py-8 px-6 flex flex-col gap-8 bg-white border rounded border-stroke">
+	<div class="flex justify-between items-center sm:flex-row flex-col gap-2">
+		<span class="text-slate-400 uppercase font-bold text-xs break-normal w-max"
+			>Pytanie {nCurrentQuestion + 1} Z {nAllQuestions}</span>
 		<div
-			class="py-8 px-6 flex flex-col gap-8 bg-white border rounded border-stroke">
-			<div class="flex justify-between items-center sm:flex-row flex-col gap-2">
-				<span
-					class="text-slate-400 uppercase font-bold text-xs break-normal w-max"
-					>Pytanie {nCurrentQuestion} Z {nAllQuestions}</span>
-				<div
-					bind:this="{HTMLrootElement}"
-					class="h-1 w-60 bg-slate-200 rounded-lg relative">
-					<div
-						class="teal-progress h-1 bg-teal-500 rounded-lg absolute left-0 transition-all duration-300 ease-out">
-					</div>
-				</div>
+			bind:this="{HTMLrootElement}"
+			class="h-1 w-60 bg-slate-200 rounded-lg relative">
+			<div
+				class="teal-progress h-1 bg-teal-500 rounded-lg absolute left-0 transition-all duration-300 ease-out">
 			</div>
-			<div class="flex flex-col gap-4 w-80 sm:w-94">
-				<h1 class="text-2xl tracking-tight font-bold text-text">
-					Jakie jest idealne wewnętrzne ustawienie temperatury dla steka
-					medium-rare?
-				</h1>
-				<h2 class="font-normal text-text2 text-sm leading-6">
-					Aby osiągnąć idealny medium-rare, kluczowa jest precyzyjna wewnętrzna
-					temperatura steka. Która temperatura jest zalecana przez kucharzy do
-					tego stopnia wysmażenia?
-				</h2>
-			</div>
-			<div class="grid grid-rows-2 grid-cols-2 gap-4 text-sm text-text">
-				<button
-					class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
-					class:orange-500="{sAnswerSelected === 'a'}"
-					on:click="{() => (sAnswerSelected = 'a')}">
-					<input type="hidden" bind:value="{sAnswerSelected}" />
-					<div
-						class="orange-500 text-orange-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
-						<span class="text-xs">A</span>
-					</div>
-					<span class="break-words">Fetched Answer</span>
-				</button>
-				<button
-					on:click="{() => (sAnswerSelected = 'b')}"
-					class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
-					class:pink-500="{sAnswerSelected === 'b'}">
-					<input type="hidden" bind:value="{sAnswerSelected}" />
-					<div
-						class="pink-500 text-pink-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
-						<span class="text-xs">B</span>
-					</div>
-					<span class="text-pretty">Fetched Answer</span>
-				</button>
-				<button
-					class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
-					class:sky-500="{sAnswerSelected === 'c'}"
-					on:click="{() => (sAnswerSelected = 'c')}">
-					<input type="hidden" bind:value="{sAnswerSelected}" />
-					<div
-						class="sky-500 text-sky-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
-						<span class="text-xs">C</span>
-					</div>
-					<span class="text-pretty">Fetched Answer</span>
-				</button>
-				<button
-					class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
-					class:emerald-500="{sAnswerSelected === 'd'}"
-					on:click="{() => (sAnswerSelected = 'd')}">
-					<input type="hidden" bind:value="{sAnswerSelected}" />
-					<div
-						class="emerald-500 text-emerald-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
-						<span class="text-xs">D</span>
-					</div>
-					<span class="text-pretty">Fetched Answer</span>
-				</button>
-			</div>
-			<form class="self-end" method="POST" action="?/submitAnswer" use:enhance>
-				<input type="hidden" bind:value="{sAnswerSelected}" />
-				<button
-					on:click="{() => (nTimeleft = 100)}"
-					type="submit"
-					class="py-2 px-4 bg-emerald-500 rounded text-white font-bold text-sm"
-					>Prześlij odpowiedź</button>
-			</form>
 		</div>
 	</div>
-</main>
+	<div class="flex flex-col gap-4 w-80 sm:w-94">
+		<h1 class="text-2xl tracking-tight font-bold text-text">
+			{data.questions[nCurrentQuestion].sQuestion}
+		</h1>
+		<h2 class="font-normal text-text2 text-sm leading-6">
+			{data.questions[nCurrentQuestion].sDetails}
+		</h2>
+	</div>
+	<div class="grid grid-rows-2 grid-cols-2 gap-4 text-sm text-text">
+		<button
+			class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
+			class:orange-500="{sAnswerSelected === 'a'}"
+			on:click="{() => (sAnswerSelected = 'a')}">
+			<input type="hidden" bind:value="{sAnswerSelected}" />
+			<div
+				class="orange-500 text-orange-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
+				<span class="text-xs">A</span>
+			</div>
+			<span class="break-words"
+				>{data.questions[nCurrentQuestion].oAnswers.sA}</span>
+		</button>
+		<button
+			on:click="{() => (sAnswerSelected = 'b')}"
+			class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
+			class:pink-500="{sAnswerSelected === 'b'}">
+			<input type="hidden" bind:value="{sAnswerSelected}" />
+			<div
+				class="pink-500 text-pink-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
+				<span class="text-xs">B</span>
+			</div>
+			<span class="text-pretty"
+				>{data.questions[nCurrentQuestion].oAnswers.sB}</span>
+		</button>
+		<button
+			class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
+			class:sky-500="{sAnswerSelected === 'c'}"
+			on:click="{() => (sAnswerSelected = 'c')}">
+			<input type="hidden" bind:value="{sAnswerSelected}" />
+			<div
+				class="sky-500 text-sky-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
+				<span class="text-xs">C</span>
+			</div>
+			<span class="text-pretty"
+				>{data.questions[nCurrentQuestion].oAnswers.sC}</span>
+		</button>
+		<button
+			class="flex bg-bgSecondary border-stroke border rounded items-center px-4 py-2 gap-3"
+			class:emerald-500="{sAnswerSelected === 'd'}"
+			on:click="{() => (sAnswerSelected = 'd')}">
+			<input type="hidden" bind:value="{sAnswerSelected}" />
+			<div
+				class="emerald-500 text-emerald-500 border font-bold bg-opacity-10 px-1.5 py-0.5 rounded flex justify-center items-center">
+				<span class="text-xs">D</span>
+			</div>
+			<span class="text-pretty"
+				>{data.questions[nCurrentQuestion].oAnswers.sD}</span>
+		</button>
+	</div>
+	<form class="self-end">
+		<input type="hidden" bind:value="{sAnswerSelected}" />
+		<button
+			on:click|preventDefault="{fnHandleSubmitBtn}"
+			type="submit"
+			class="py-2 px-4 bg-emerald-500 rounded text-white font-bold text-sm"
+			>Prześlij odpowiedź</button>
+	</form>
+</div>
 
 <style lang="postcss">
-	:global(body) {
-		min-height: 100vh;
-		display: grid;
-		place-items: center;
-	}
 	:root {
 		--width: inherit;
 	}
