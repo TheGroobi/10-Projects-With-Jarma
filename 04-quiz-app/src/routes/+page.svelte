@@ -1,24 +1,31 @@
 <script lang="ts">
 	import Timer from "$lib/Timer.svelte";
-	import { enhance } from '$app/forms';
+	import { onMount } from "svelte";
+	import { enhance } from "$app/forms";
 
 	let nCurrentQuestion: number = 6;
 	let nAllQuestions: number = 12;
-
 	let sAnswerSelected: string;
-	
-	$: nTimeleft = 100;
-	$: nMinutesLeft = Math.floor(nTimeleft / 60);
-	$: nSecondsLeft = nTimeleft % 60;
-	function fnTimeCountdown() {
-		nTimeleft--
-	}
-	function fnStartTimer() {
-		setInterval(fnTimeCountdown, 1000)
-	}
-	let HTMLrootElement: HTMLElement;
-	$: HTMLrootElement && HTMLrootElement.style.setProperty("--width", `${nTimeleft}%`);
 
+	$: nTimeleft = 5;
+	$: nMinutesLeft = Math.floor(nTimeleft / 60);
+	$: nSecondsLeft = nTimeleft < 10 ? "0" + (nTimeleft % 60) : nTimeleft % 60;
+
+	let intervalId: any = null;
+	const fnInterval = () => {
+		if (nTimeleft) {
+			nTimeleft--;
+		} else {
+			clearInterval(intervalId);
+		}
+	};
+	onMount(() => {
+		intervalId = setInterval(fnInterval, 1000);
+	});
+	let HTMLrootElement: HTMLElement;
+	$: HTMLrootElement &&
+		HTMLrootElement.style.setProperty("--width", `${nTimeleft}%`);
+	$: console.log(sAnswerSelected);
 </script>
 
 <svelte:head>
@@ -45,7 +52,8 @@
 				<div
 					bind:this="{HTMLrootElement}"
 					class="h-1 w-60 bg-slate-200 rounded-lg relative">
-					<div class="teal-progress h-1 bg-teal-500 rounded-lg absolute left-0 transition-all duration-300 ease-out">
+					<div
+						class="teal-progress h-1 bg-teal-500 rounded-lg absolute left-0 transition-all duration-300 ease-out">
 					</div>
 				</div>
 			</div>
@@ -106,10 +114,10 @@
 					<span class="text-pretty">Fetched Answer</span>
 				</button>
 			</div>
-			<!-- method="POST" action="?/submitAnswer" use:enhance-->
-			<form class="self-end">
+			<form class="self-end" method="POST" action="?/submitAnswer" use:enhance>
+				<input type="hidden" bind:value="{sAnswerSelected}" />
 				<button
-					on:click|once={fnStartTimer}
+					on:click="{() => (nTimeleft = 100)}"
 					type="submit"
 					class="py-2 px-4 bg-emerald-500 rounded text-white font-bold text-sm"
 					>Prześlij odpowiedź</button>
