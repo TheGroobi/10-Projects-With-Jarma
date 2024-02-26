@@ -13,7 +13,7 @@
 			<input
 				type="checkbox"
 				class="before:content[''] h-6 w-6 cursor-pointer appearance-none rounded-[0.1875rem] bg-bg-light checked:bg-bg-light"
-				bind:value={ingredient.completed}
+				bind:checked={ingredient.completed}
 			/>
 		</form>
 		{#if ingredient.completed}

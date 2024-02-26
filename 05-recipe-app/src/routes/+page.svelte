@@ -3,40 +3,18 @@
 	import IngredientTask from '$lib/IngredientTask.svelte';
 	import CookingDirectionsTask from '$lib/CookingDirectionsTask.svelte';
 
+	export let data;
+	
 	interface taskObj {
 		id: number;
 		text: string;
 		completed: boolean;
 	}
 
-	let directionsArr: taskObj[] = [
-		{
-			id: 1,
-			text: '1) Przygotuj składniki: Zbierz wszystkie składniki. Jajka wybij do miski.',
-			completed: false
-		},
-		{
-			id: 2,
-			text: '2) Rozgrzej patelnię: Na średnim ogniu rozgrzej patelnię i dodaj masło lub olej. Poczekaj, aż masło się roztopi i zacznie lekko skwierczeć.',
-			completed: false
-		},
-		{
-			id: 3,
-			text: '3) Mieszaj jajecznicę: Delikatnie mieszaj jajka drewnianą łyżką lub szpatułką, przesuwając je od krawędzi patelni do środka, pozwalając płynnym częściom jaj spłynąć na patelnię, aby się ścięły.',
-			completed: false
-		},
-		{
-			id: 4,
-			text: '4) Podawaj natychmiast: Podawaj jajecznicę natychmiast po ściągnięciu z ognia, najlepiej z ulubionymi dodatkami, takimi jak świeże zioła, pomidory, ser lub pieczywo.',
-			completed: false
-		}
-	];
-	let ingredientsArr: taskObj[] = [
-		{ id: 1, text: 'Ketchup', completed: false },
-		{ id: 2, text: '2 Łyżki mleka', completed: false },
-		{ id: 3, text: 'Mąka przenna', completed: false },
-		{ id: 4, text: '2 Jaja', completed: false }
-	];
+	let directionsArr: taskObj[] = [];
+	let ingredientsArr: taskObj[] = [];
+
+	console.log(data.recipes);
 </script>
 
 <svelte:head>

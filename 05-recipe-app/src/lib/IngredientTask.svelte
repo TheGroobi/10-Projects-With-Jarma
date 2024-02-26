@@ -5,6 +5,7 @@
 		completed: boolean;
 	}
 	export let ingredient: taskObj;
+	$: console.log(ingredient)
 </script>
 
 <li id={ingredient.id.toString()} class="py-3 px-4 bg-bg-main list-none flex gap-3 relative">
@@ -13,7 +14,7 @@
 			<input
 				type="checkbox"
 				class="before:content[''] h-6 w-6 cursor-pointer appearance-none rounded-[0.1875rem] bg-bg-light checked:bg-lime-500"
-				bind:value={ingredient.completed}
+				bind:checked={ingredient.completed}
 			/>
 		</form>
 		{#if ingredient.completed}
