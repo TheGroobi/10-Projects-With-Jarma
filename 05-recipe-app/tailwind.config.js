@@ -10,6 +10,7 @@ export default {
         'text-secondary': '#94A3B8',
         'text-invert': 'rgba(30, 41, 59, 1)',
         'ingredients': '#3D3E33',
+        'directions': '#1C3C55',
       }
     }
   },
