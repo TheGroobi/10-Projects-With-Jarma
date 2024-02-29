@@ -1,13 +1,14 @@
 <script lang="ts">
-	import type { descriptionObj } from '$lib/types.d.ts'
+	import type { descriptionObj } from '$lib/types.d.ts';
 
 	export let direction: descriptionObj;
 </script>
 
 <li id={direction.id.toString()} class="py-3 px-4 bg-bg-main list-none flex gap-3 relative">
 	<button type="submit" class="h-6 w-6">
-		<form method="POST" class="h-6 w-6">
+		<form class="h-6 w-6" name="directionCheckbox">
 			<input
+				id="direction"
 				type="checkbox"
 				class="before:content[''] h-6 w-6 cursor-pointer appearance-none rounded-[0.1875rem] bg-bg-light checked:bg-bg-light"
 				bind:checked={direction.completed}

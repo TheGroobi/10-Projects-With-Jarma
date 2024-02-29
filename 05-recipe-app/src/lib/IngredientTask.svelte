@@ -1,13 +1,14 @@
 <script lang="ts">
-	import type { ingredientObj } from '$lib/types.d.ts'
+	import type { ingredientObj } from '$lib/types.d.ts';
 
 	export let ingredient: ingredientObj;
 </script>
 
 <li id={ingredient.id.toString()} class="py-3 px-4 bg-bg-main list-none flex gap-3 relative">
 	<button type="submit" class="h-6 w-6">
-		<form method="POST" class="h-6 w-6">
+		<form method="POST" class="h-6 w-6" name="ingredientCheckbox">
 			<input
+				id="ingredient"
 				type="checkbox"
 				class="before:content[''] h-6 w-6 cursor-pointer appearance-none rounded-[0.1875rem] bg-bg-light checked:bg-lime-500"
 				bind:checked={ingredient.completed}
