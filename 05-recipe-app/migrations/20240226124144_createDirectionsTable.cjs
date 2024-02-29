@@ -7,7 +7,7 @@ exports.up = function(knex) {
         table.increments('id');
         table.text('description');
         table.integer('recipe_id').unsigned().references('id').inTable('recipes').onDelete('CASCADE');
-        table.integer('order');
+        table.integer('order_step');
       })
 };
 

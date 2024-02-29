@@ -1,11 +1,7 @@
 <script lang="ts">
-	interface taskObj {
-		id: number;
-		text: string;
-		completed: boolean;
-	}
-	export let ingredient: taskObj;
-	$: console.log(ingredient)
+	import type { ingredientObj } from '$lib/types.d.ts'
+
+	export let ingredient: ingredientObj;
 </script>
 
 <li id={ingredient.id.toString()} class="py-3 px-4 bg-bg-main list-none flex gap-3 relative">
@@ -35,6 +31,6 @@
 	<span
 		class="text-base font-normal leading-6 text-text-main"
 		class:text-text-secondary={ingredient.completed}
-		class:line-through={ingredient.completed}>{ingredient.text}</span
+		class:line-through={ingredient.completed}>{ingredient.name}</span
 	>
 </li>

@@ -11,6 +11,9 @@ export default {
         'text-invert': 'rgba(30, 41, 59, 1)',
         'ingredients': '#3D3E33',
         'directions': '#1C3C55',
+      },
+      height: {
+        '43': '43rem',
       }
     }
   },

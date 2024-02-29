@@ -1,22 +1,19 @@
 <script lang="ts">
-	interface taskObj {
-		id: number;
-		text: string;
-		completed: boolean;
-	}
-	export let ingredient: taskObj;
+	import type { descriptionObj } from '$lib/types.d.ts'
+
+	export let direction: descriptionObj;
 </script>
 
-<li id={ingredient.id.toString()} class="py-3 px-4 bg-bg-main list-none flex gap-3 relative">
+<li id={direction.id.toString()} class="py-3 px-4 bg-bg-main list-none flex gap-3 relative">
 	<button type="submit" class="h-6 w-6">
 		<form method="POST" class="h-6 w-6">
 			<input
 				type="checkbox"
 				class="before:content[''] h-6 w-6 cursor-pointer appearance-none rounded-[0.1875rem] bg-bg-light checked:bg-bg-light"
-				bind:checked={ingredient.completed}
+				bind:checked={direction.completed}
 			/>
 		</form>
-		{#if ingredient.completed}
+		{#if direction.completed}
 			<svg
 				class="absolute h-[0.875rem] w-[0.875rem] top-[1.06rem] left-[1.31rem] pointer-events-none"
 				xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +30,7 @@
 	</button>
 	<span
 		class="text-base font-normal leading-6 text-text-main"
-		class:text-text-secondary={ingredient.completed}
-		class:line-through={ingredient.completed}>{ingredient.text}</span
+		class:text-text-secondary={direction.completed}
+		class:line-through={direction.completed}>{direction.order_step}) {direction.description}</span
 	>
 </li>
