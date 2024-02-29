@@ -1,24 +1,28 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+
 	export let data;
+	let form: HTMLFormElement;
+	let inputValue: string;
 
-	let filteredRecipes: any[] = data.recipes;
-	$: searchInputValue = '';
+	let recipes: any[] = data.recipes;
 
-	function filterRecipes() {
-		filteredRecipes = data.recipes.filter((recipe) =>
-			recipe.name.toLowerCase().includes(searchInputValue?.toLowerCase())
-		);
+	function handleSubmit(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			form.submit;
+		}
 	}
+	$: console.log(data);
 </script>
 
-<div class="flex relative w-full">
+<form method="POST" class="flex relative w-full" bind:this={form} use:enhance>
 	<input
-		id="search"
+		name="search"
 		type="text"
 		class="w-full bg-bg-main rounded-lg px-4 py-2 font-medium outline-none text-text-main"
 		placeholder="Wyszukaj przepisu"
-		bind:value={searchInputValue}
-		on:input={filterRecipes}
+		bind:value={inputValue}
+		on:keydown={handleSubmit}
 	/>
 	<svg
 		class="absolute right-4 top-3 pointer-events-none"
@@ -41,21 +45,23 @@
 			fill="#F8FAFC"
 		/>
 	</svg>
-</div>
-
-{#each filteredRecipes as recipe}
+</form>
+{#if !recipes}
+	<h1 class="text-text-main text-3xl grid place-items-center">No recipes found</h1>
+{/if}
+{#each recipes as recipe}
 	<div class="flex flex-col sm:flex-row gap-4 bg-bg-main">
 		<img
 			src={recipe.image_url}
 			alt={recipe.name}
-			class="xl:w-[29.75rem] lg:w-[20rem] w-full object-cover max-h-64 sm:max-h-full sm:w-64 md:max-h-64 lg:max-h-64"
+			class="xl:w-[29.75rem] lg:w-[20rem] w-full object-cover max-h-64 sm:max-h-full sm:w-64 lg:max-h-64"
 		/>
 		<div class="flex flex-col pt-8 gap-6 py-[1.37rem] px-8 w-full">
 			<h1 class="text-text-main text-3xl font-semibold leading-[150%]">{recipe.name}</h1>
 			<p class="text-text-secondary">{recipe.description}</p>
 			<a
 				href={recipe.id}
-				class="bg-orange-500 rounded-lg text-invert font-bold text-base px-8 py-2 text-center self-end"
+				class="bg-orange-500 rounded-lg text-invert font-bold text-base px-8 py-2 text-center self-end hover:bg-orange-600"
 				>Przejdź do przepisu</a
 			>
 		</div>
