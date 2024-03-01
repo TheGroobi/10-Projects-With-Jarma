@@ -1,21 +1,33 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
+	export let form;
 	export let data;
-	let form: HTMLFormElement;
+
+	let formEl: HTMLFormElement;
 	let inputValue: string;
 
 	let recipes: any[] = data.recipes;
 
 	function handleSubmit(e: KeyboardEvent) {
 		if (e.key === 'Enter') {
-			form.submit;
+			formEl.submit;
 		}
 	}
-	$: console.log(data);
+	$: if (form) {
+		recipes = form?.recipesFiltered;
+	}
+
+	function resetRecipes() {
+		if (recipes === data.recipes) {
+			return;
+		} else {
+			recipes = data.recipes;
+		}
+	}
 </script>
 
-<form method="POST" class="flex relative w-full" bind:this={form} use:enhance>
+<form method="POST" class="flex relative w-full" bind:this={formEl} use:enhance>
 	<input
 		name="search"
 		type="text"
@@ -46,8 +58,17 @@
 		/>
 	</svg>
 </form>
-{#if !recipes}
-	<h1 class="text-text-main text-3xl grid place-items-center">No recipes found</h1>
+{#if recipes.length === 0}
+	<div class="flex-col flex gap-4 bg-bg-main py-6 px-6">
+		<h1 class="text-text-main text-2xl grid place-items-center">
+			There are not recipes with that name
+		</h1>
+		<button
+			on:click={resetRecipes}
+			class="bg-sky-500 rounded-lg text-invert font-bold text-base px-8 py-2 text-center self-center hover:bg-sky-600"
+			>Pokaż wszystkie przepisy</button
+		>
+	</div>
 {/if}
 {#each recipes as recipe}
 	<div class="flex flex-col sm:flex-row gap-4 bg-bg-main">
@@ -56,7 +77,7 @@
 			alt={recipe.name}
 			class="xl:w-[29.75rem] lg:w-[20rem] w-full object-cover max-h-64 sm:max-h-full sm:w-64 lg:max-h-64"
 		/>
-		<div class="flex flex-col pt-8 gap-6 py-[1.37rem] px-8 w-full">
+		<div class="flex flex-col pt-8 gap-6 py-[1.37rem] px-8 w-full justify-between">
 			<h1 class="text-text-main text-3xl font-semibold leading-[150%]">{recipe.name}</h1>
 			<p class="text-text-secondary">{recipe.description}</p>
 			<a
