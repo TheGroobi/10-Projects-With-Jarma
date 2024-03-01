@@ -1,6 +1,6 @@
 import db from '$lib/server/db'
 
-export const load = async () => {
+export const load = async ({ params }) => {
     const recipes = await db.select('*').from('recipes');
     return { recipes };
 };
