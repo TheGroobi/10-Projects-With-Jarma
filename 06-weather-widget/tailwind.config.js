@@ -10,10 +10,11 @@ export default {
         'text-white': 'rgba(248, 250, 252, 1)',
       },
       fontSize: {
-        'clampBig': 'clamp(1rem, 0.2357rem + 3.3970vw, 3rem)',
-        'clampMediumLg': 'clamp(0.75rem, 0.2723rem + 2.1231vw, 2rem)',
-        'clampMediumSm': 'clamp(0.5rem, 0.1178rem + 1.6985vw, 1.5rem)',
-        'clampSmall': 'clamp(0.25rem, 0.3089rem + 0.8493vw, 1rem)',
+        'clampBig': 'clamp(2rem, 0.5882rem + 6.2745vw, 3rem)',
+        'clampMediumLg': 'clamp(1.25rem, 0.3676rem + 3.9216vw, 1.875rem)',
+        'clampMedium': 'clamp(1rem, 0.2941rem + 3.1373vw, 1.5rem)',
+        'clampMediumSm': 'clamp(0.75rem, 0.3971rem + 1.5686vw, 1rem)',
+        'clampSmall': 'clamp(1rem, 1.5294rem + -2.3529vw, 0.625rem)',
       }
     }
   },

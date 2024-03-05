@@ -13,12 +13,15 @@
 		rel="stylesheet"
 	/>
 </svelte:head>
-<main class="bg-slate-950 h-svh text-text-white">
-	<slot />
+<main class=" min-h-svh text-text-white grid place-items-center">
+	<div class="max-w-[38.5rem] flex flex-col items-center">
+		<slot />
+	</div>
 </main>
 
 <style lang="postcss">
 	:global(body) {
 		font-style: 'Inter', sans-serif;
+		background-color: #020617;
 	}
 </style>
