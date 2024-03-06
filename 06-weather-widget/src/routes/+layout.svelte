@@ -14,7 +14,7 @@
 	/>
 </svelte:head>
 <main class=" min-h-svh text-text-white grid place-items-center">
-	<div class="max-w-[38.5rem] flex flex-col items-center">
+	<div class="flex flex-col items-center my-20">
 		<slot />
 	</div>
 </main>
