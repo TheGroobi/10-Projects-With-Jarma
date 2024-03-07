@@ -1,19 +1,44 @@
 <script lang="ts">
-	let mainSrc = 'images/night_storm.png';
-	let monSrc = 'images/thunderstorm.png';
-	let tueSrc = 'images/partly_day_storm.png';
-	let wendSrc = 'images/snowy.png';
-	let thurSrc = 'images/sunny.png';
-	let friSrc = 'images/rainy.png';
-	let satSrc = 'images/partly_cloudy.png';
-	let sunSrc = 'images/cloudy.png';
+	import { enhance } from '$app/forms';
+
+	let src: string = '/images/01.png';
+
+	export let data;
+	export let form;
+
+	let formEl: HTMLFormElement;
+
+	let weather = data?.data;
+	let forecast = data?.forecast.daily;
+
+	$: if (form) {
+		weather = form?.form;
+		forecast = form?.forecast.daily;
+	}
+
+	$: cityName = weather.name;
+	$: weatherDesc = weather.weather[0].description;
+	$: temp = Math.round(weather.main.temp);
+	$: pressure = weather.main.pressure;
+	$: humidity = weather.main.humidity;
+	$: windSpeed = Math.round(weather.wind.speed);
+
+	function handleSubmit(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			formEl.submit();
+		}
+	}
+
+	let date: Date = new Date();
+	console.log((date.getDay() + 7) % 7);
 </script>
 
-<section class="w-full mb-[10.5rem]">
+<form class="w-full mb-[10.5rem]" bind:this={formEl} method="POST" use:enhance>
 	<label for="city" class="relative flex justify-between">
 		<input
+			on:keydown={(e) => handleSubmit(e)}
 			class="px-4 py-[0.87rem] bg-bg-main rounded-lg text-sm w-full focus:outline-sky-300"
-			id="city"
+			name="city"
 			type="text"
 			placeholder="Wyszukaj lokalizacje"
 		/>
@@ -39,16 +64,16 @@
 			/>
 		</svg>
 	</label>
-</section>
+</form>
 <section
 	class="bg-bg-main pt-[8.875rem] pb-16 px-8 rounded-3xl relative flex flex-col gap-10 max-w-[38.5rem]"
 >
 	<div class="flex flex-col gap-6">
-		<img src={mainSrc} alt="cloudy" class="w-60 absolute z-1 top-[-7.5rem] self-center" />
+		<img {src} alt="cloudy" class="w-60 absolute z-1 top-[-7.5rem] self-center" />
 		<div class="flex gap-2 flex-col items-center">
-			<h2 class="font-semibold text-clampMediumLg">Łódź</h2>
-			<h1 class="font-bold text-clampBig">8*C</h1>
-			<h3 class="font-regular text-clampMediumSm">Fetched "Słonecznie"</h3>
+			<h2 class="font-semibold text-clampMediumLg">{cityName}</h2>
+			<h1 class="font-bold text-clampBig">{temp}°C</h1>
+			<h3 class="font-regular text-clampMediumSm capitalize">{weatherDesc}</h3>
 		</div>
 		<p class="text-text-gray text-clampMediumSm">
 			FETCHED W Łodzi, 16 lipca, oczekuje się słonecznej pogody z temp. 25°C/17°C. Możliwe przelotne
@@ -85,7 +110,7 @@
 					fill="#F8FAFC"
 				/>
 			</svg>
-			<h2 class="text-clampMedium font-bold tracking-wider">2km/h</h2>
+			<h2 class="text-clampMedium font-bold tracking-wider">{windSpeed}km/h</h2>
 			<p class="text-text-gray font-regular text-clampMediumSm">Wiatr</p>
 		</div>
 		<div class="flex gap-2 flex-col items-center min-w-[6.625rem]">
@@ -103,7 +128,7 @@
 					fill="#F8FAFC"
 				/>
 			</svg>
-			<h2 class="text-clampMedium font-bold tracking-wider">60%</h2>
+			<h2 class="text-clampMedium font-bold">{humidity}%</h2>
 			<p class="text-text-gray font-regular text-clampMediumSm">Wilgotność</p>
 		</div>
 		<div class="flex gap-2 flex-col items-center min-w-[6.625rem]">
@@ -133,28 +158,52 @@
 					fill="#F8FAFC"
 				/>
 			</svg>
-			<h2 class="text-clampMedium font-bold">1013 hPa</h2>
+			<h2 class="text-clampMedium font-bold">{pressure} hPa</h2>
 			<p class="text-text-gray font-regular text-clampMediumSm">Ciśnienie</p>
 		</div>
 	</div>
 </section>
 <p class="mt-8 mb-6 text-text-white">Najbliższe dni</p>
 <section class="flex flex-col gap-3 w-full">
-	<div class="flex gap-6 bg-bg-main p-6 rounded-3xl items-center">
-		<h1 class="text-clampMediumLg font-semibold w-[4.5625rem]">Wt</h1>
-		<div class="relative">
-			<img src={monSrc} alt="rainy" class="w-[4rem]" />
-			<img src={monSrc} alt="rainy" class="w-[4rem] absolute bottom-0 blur-md opacity-50" />
-		</div>
-		<div class="flex gap-8 items-center">
-			<p class="text-text-white font-regular text-clampMediumSm w-[5.4375rem]">Pochmurno</p>
-			<div class="flex gap-3 items-center">
-				<h2 class="text-clampMedium font-bold">17*C</h2>
-				<div class="w-32 bg-black bg-opacity-10 relative h-2 rounded-lg">
-					<div class="rounded-lg left-[20%] absolute items-center w-20 h-2 bg-sky-300 z-10"></div>
+	{#each forecast as f, i}
+		<div class="flex gap-6 bg-bg-main p-6 rounded-3xl items-center">
+			<h1 class="text-clampMediumLg font-semibold w-[4.5625rem]">
+				{#if i === 0}
+					Dziś
+				{:else if (date.getDay() + i) % 7 === 0}
+					Niedz
+				{:else if (date.getDay() + i) % 7 === 1}
+					Pon
+				{:else if (date.getDay() + i) % 7 === 2}
+					Wt
+				{:else if (date.getDay() + i) % 7 === 3}
+					Śr
+				{:else if (date.getDay() + i) % 7 === 4}
+					Czw
+				{:else if (date.getDay() + i) % 7 === 5}
+					Pt
+				{:else if (date.getDay() + i) % 7 === 6}
+					Sob
+				{/if}
+			</h1>
+			<div class="relative">
+				<img {src} alt="rainy" class="w-[4rem]" />
+				<img {src} alt="rainy" class="w-[4rem] absolute bottom-0 blur-md opacity-50" />
+			</div>
+			<div class="flex gap-8 items-center">
+				<p
+					class="text-text-white font-regular text-clampMediumSm w-[5.4375rem] capitalize text-pretty"
+				>
+					{f.weather[0].description}
+				</p>
+				<div class="flex gap-3 items-center">
+					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.min)}°C</h2>
+					<div class="w-32 bg-black bg-opacity-10 relative h-2 rounded-lg">
+						<div class="rounded-lg left-[20%] absolute items-center w-20 h-2 bg-sky-300 z-10"></div>
+					</div>
+					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.max)}°C</h2>
 				</div>
-				<h2 class="text-clampMedium font-bold">05*C</h2>
 			</div>
 		</div>
-	</div>
+	{/each}
 </section>
