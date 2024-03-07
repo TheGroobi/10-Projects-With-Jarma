@@ -1,24 +1,23 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
-	let src: string = '/images/01.png';
-
 	export let data;
 	export let form;
 
-	let formEl: HTMLFormElement;
-
-	let weather = data?.data;
 	let forecast = data?.forecast.daily;
+	let weather = data?.data;
 
 	$: if (form) {
 		weather = form?.form;
 		forecast = form?.forecast.daily;
 	}
 
+	let formEl: HTMLFormElement;
+
 	$: cityName = weather.name;
 	$: weatherDesc = weather.weather[0].description;
-	$: temp = Math.round(weather.main.temp);
+	$: temp = weather.main.temp;
+	$: feelsLike = weather.main.feels_like;
 	$: pressure = weather.main.pressure;
 	$: humidity = weather.main.humidity;
 	$: windSpeed = Math.round(weather.wind.speed);
@@ -29,8 +28,122 @@
 		}
 	}
 
-	let date: Date = new Date();
-	console.log((date.getDay() + 7) % 7);
+	function srcIcon(icon: string) {
+		switch (icon) {
+			case '01d':
+			case '01n':
+				return '/images/01.png';
+			case '02d':
+			case '02n':
+				return '/images/02.png';
+			case '03d':
+			case '03n':
+			case '04d':
+			case '04n':
+			case '50n':
+			case '50d':
+				return '/images/03.png';
+			case '09d':
+			case '09n':
+			case '10n':
+			case '10d':
+				return '/images/10.png';
+			case '11d':
+			case '11n':
+				return '/images/11.png';
+			case '13d':
+			case '13n':
+				return '/images/13.png';
+		}
+	}
+
+	function altIcon(icon: string) {
+		switch (icon) {
+			case '01d':
+			case '01n':
+				return 'Sunny Icon';
+			case '02d':
+			case '02n':
+				return 'Sun and cloud Icon';
+			case '03d':
+			case '03n':
+			case '04d':
+			case '04n':
+			case '50n':
+			case '50d':
+				return 'Cloud Icon';
+			case '09d':
+			case '09n':
+			case '10n':
+			case '10d':
+				return 'Rain Icon';
+			case '11d':
+			case '11n':
+				return 'Thunderstorm Icon';
+			case '13d':
+			case '13n':
+				return 'Snow Icon';
+		}
+	}
+
+	function dayOfTheWeek(i: number) {
+		let date: Date = new Date();
+		const weekDay = (date.getDay() + i) % 7;
+		switch (weekDay) {
+			case 0:
+				return 'Ndz';
+			case 1:
+				return 'Pon';
+			case 2:
+				return 'Wt';
+			case 3:
+				return 'Śr';
+			case 4:
+				return 'Czw';
+			case 5:
+				return 'Pt';
+			case 6:
+				return 'Sob';
+		}
+	}
+
+	// cały bar podzielić na amplitude
+	//100% width / amplitude()
+	//min starting point
+	//max ending point
+
+	function amplitude(f: any) {
+		const maxTempArr = f.map((f: WeatherData) => f.temp.max);
+		const minTempArr = f.map((f: WeatherData) => f.temp.min);
+
+		let minTemp: number = minTempArr[0];
+		let maxTemp: number = maxTempArr[0];
+
+		for (let i = 1; i < maxTempArr.length; i++) {
+			if (maxTempArr[i] > maxTemp) {
+				maxTemp = maxTempArr[i];
+			}
+			if (minTempArr[i] < minTemp) {
+				minTemp = minTempArr[i];
+			}
+		}
+		//Amplitude cases
+		if (!minTemp && !maxTemp) {
+			return Math.round(minTemp + maxTemp);
+		} else if (!minTemp && maxTemp) {
+			return Math.round(minTemp * -1 + maxTemp);
+		} else if (minTemp && maxTemp) {
+			return Math.round(minTemp * -1 + maxTemp);
+		} else if (minTemp && !maxTemp) {
+			return Math.round(minTemp + maxTemp * -1);
+		}
+	}
+	$: amplitudeWidth = amplitude(forecast);
+
+	function localAmplitude(min: number, max: number) {}
+
+	let rootEl: HTMLDivElement;
+	$: rootEl && rootEl.style.setProperty('--width', `${amplitudeWidth}%`);
 </script>
 
 <form class="w-full mb-[10.5rem]" bind:this={formEl} method="POST" use:enhance>
@@ -38,6 +151,7 @@
 		<input
 			on:keydown={(e) => handleSubmit(e)}
 			class="px-4 py-[0.87rem] bg-bg-main rounded-lg text-sm w-full focus:outline-sky-300"
+			id="city"
 			name="city"
 			type="text"
 			placeholder="Wyszukaj lokalizacje"
@@ -69,16 +183,20 @@
 	class="bg-bg-main pt-[8.875rem] pb-16 px-8 rounded-3xl relative flex flex-col gap-10 max-w-[38.5rem]"
 >
 	<div class="flex flex-col gap-6">
-		<img {src} alt="cloudy" class="w-60 absolute z-1 top-[-7.5rem] self-center" />
+		<img
+			src={srcIcon(weather.weather[0].icon)}
+			alt={altIcon(weather.weather[0].icon)}
+			class="w-60 absolute z-1 top-[-7.5rem] self-center"
+		/>
 		<div class="flex gap-2 flex-col items-center">
 			<h2 class="font-semibold text-clampMediumLg">{cityName}</h2>
-			<h1 class="font-bold text-clampBig">{temp}°C</h1>
+			<h1 class="font-bold text-clampBig">{Math.round(temp)}°C</h1>
 			<h3 class="font-regular text-clampMediumSm capitalize">{weatherDesc}</h3>
 		</div>
 		<p class="text-text-gray text-clampMediumSm">
-			FETCHED W Łodzi, 16 lipca, oczekuje się słonecznej pogody z temp. 25°C/17°C. Możliwe przelotne
-			opady (40% szans), szczególnie po południu. Ciśnienie stabilne na poziomie 1013 hPa. Idealne
-			warunki dla miłośników umiarkowanej pogody.
+			{weather.sys.country}
+			{cityName}, Temperatura wynosi {temp}°C (Odczuwalna {feelsLike}°C). Ciśnienie wyniesie dzisiaj {pressure}
+			hPa
 		</p>
 	</div>
 	<div class="rounded-3xl bg-bg-secondary p-6 flex justify-between">
@@ -170,25 +288,17 @@
 			<h1 class="text-clampMediumLg font-semibold w-[4.5625rem]">
 				{#if i === 0}
 					Dziś
-				{:else if (date.getDay() + i) % 7 === 0}
-					Niedz
-				{:else if (date.getDay() + i) % 7 === 1}
-					Pon
-				{:else if (date.getDay() + i) % 7 === 2}
-					Wt
-				{:else if (date.getDay() + i) % 7 === 3}
-					Śr
-				{:else if (date.getDay() + i) % 7 === 4}
-					Czw
-				{:else if (date.getDay() + i) % 7 === 5}
-					Pt
-				{:else if (date.getDay() + i) % 7 === 6}
-					Sob
+				{:else}
+					{dayOfTheWeek(i)}
 				{/if}
 			</h1>
 			<div class="relative">
-				<img {src} alt="rainy" class="w-[4rem]" />
-				<img {src} alt="rainy" class="w-[4rem] absolute bottom-0 blur-md opacity-50" />
+				<img src={srcIcon(f.weather[0].icon)} alt={altIcon(f.weather[0].icon)} class="w-[4rem]" />
+				<img
+					src={srcIcon(f.weather[0].icon)}
+					alt={altIcon(f.weather[0].icon)}
+					class="w-[4rem] absolute bottom-0 blur-md opacity-50"
+				/>
 			</div>
 			<div class="flex gap-8 items-center">
 				<p
@@ -198,8 +308,10 @@
 				</p>
 				<div class="flex gap-3 items-center">
 					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.min)}°C</h2>
-					<div class="w-32 bg-black bg-opacity-10 relative h-2 rounded-lg">
-						<div class="rounded-lg left-[20%] absolute items-center w-20 h-2 bg-sky-300 z-10"></div>
+					<div class="w-32 bg-black bg-opacity-10 relative h-2 rounded-lg" bind:this={rootEl}>
+						<div
+							class="rounded-lg absolute items-center w-20 h-2 bg-gradient-to-r from-sky-300 to-emerald-300 z-10 amplitude-bar"
+						></div>
 					</div>
 					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.max)}°C</h2>
 				</div>
@@ -207,3 +319,12 @@
 		</div>
 	{/each}
 </section>
+
+<style lang="postcss">
+	:root {
+		--width: inherit;
+	}
+	.amplitude-bar {
+		width: var(--width);
+	}
+</style>

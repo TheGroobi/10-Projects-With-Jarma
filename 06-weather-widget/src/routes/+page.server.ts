@@ -20,6 +20,7 @@ export const load = (async () => {
     
     const data = await res.json();
     const forecast = await resForecast.json();
+
     return { data, forecast }
 }) satisfies PageServerLoad;
 
@@ -59,6 +60,7 @@ export const actions = {
 
         const form = await res.json()
         const forecast = await resForecast.json()
+        
         return { form, forecast }
     }
 } satisfies Actions;

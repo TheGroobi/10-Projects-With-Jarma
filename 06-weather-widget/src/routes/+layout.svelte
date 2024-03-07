@@ -24,4 +24,5 @@
 		font-style: 'Inter', sans-serif;
 		background-color: #020617;
 	}
+
 </style>
