@@ -2,13 +2,13 @@ import type { PageServerLoad, Actions, RequestEvent } from './$types';
 import { WEATHER_API_KEY } from '$env/static/private';
 
 export const load = (async () => {
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=51.76&lon=19.45&lang=pl&units=metric&appid=${WEATHER_API_KEY}`)
+    const resWeather = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=51.76&lon=19.45&lang=pl&units=metric&appid=${WEATHER_API_KEY}`)
     const resForecast = await fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=51.76&lon=19.45&lang=pl&appid=${WEATHER_API_KEY}&units=metric&exclude=minutely,hourly`);
 
-    if (!res.ok) {
+    if (!resWeather.ok) {
         return {
-            status: res.status,
-            statusText: res.statusText,
+            status: resWeather.status,
+            statusText: resWeather.statusText,
         }
     }
     if (!resForecast.ok) {
@@ -18,10 +18,10 @@ export const load = (async () => {
         }
     }
     
-    const data = await res.json();
+    const weather = await resWeather.json();
     const forecast = await resForecast.json();
 
-    return { data, forecast }
+    return { weather, forecast }
 }) satisfies PageServerLoad;
 
 export const actions = {
@@ -42,13 +42,13 @@ export const actions = {
         const lat: number = dataGeo[0]?.lat;
         const lon: number = dataGeo[0]?.lon;
     
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&lang=pl&units=metric&appid=${WEATHER_API_KEY}`);
+        const resWeather = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&lang=pl&units=metric&appid=${WEATHER_API_KEY}`);
         const resForecast = await fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&lang=pl&appid=${WEATHER_API_KEY}&units=metric&exclude=minutely,hourly`);
 
-        if (!res.ok) {
+        if (!resWeather.ok) {
             return {
-                status: res.status,
-                statusText: res.statusText,
+                status: resWeather.status,
+                statusText: resWeather.statusText,
             }
         }
         if (!resForecast.ok) {
@@ -58,9 +58,9 @@ export const actions = {
             }
         }
 
-        const form = await res.json()
+        const weather = await resWeather.json()
         const forecast = await resForecast.json()
         
-        return { form, forecast }
+        return { weather, forecast }
     }
 } satisfies Actions;

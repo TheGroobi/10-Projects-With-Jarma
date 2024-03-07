@@ -5,11 +5,18 @@
 	export let form;
 
 	let forecast = data?.forecast.daily;
-	let weather = data?.data;
+	let weather = data?.weather;
+	let errorMessage: string;
 
 	$: if (form) {
-		weather = form?.form;
-		forecast = form?.forecast.daily;
+		//@ts-ignore
+		if (form.status >= 300) {
+			errorMessage = 'Miasto nie istnieje';
+		} else {
+			errorMessage = '';
+			weather = form.weather;
+			forecast = form.forecast.daily;
+		}
 	}
 
 	let formEl: HTMLFormElement;
@@ -107,18 +114,12 @@
 		}
 	}
 
-	// cały bar podzielić na amplitude
-	//100% width / amplitude()
-	//min starting point
-	//max ending point
-
 	function amplitude(f: any) {
-		const maxTempArr = f.map((f: WeatherData) => f.temp.max);
-		const minTempArr = f.map((f: WeatherData) => f.temp.min);
+		const maxTempArr = f.map((f: WeatherData) => Math.round(f.temp.max));
+		const minTempArr = f.map((f: WeatherData) => Math.round(f.temp.min));
 
 		let minTemp: number = minTempArr[0];
 		let maxTemp: number = maxTempArr[0];
-
 		for (let i = 1; i < maxTempArr.length; i++) {
 			if (maxTempArr[i] > maxTemp) {
 				maxTemp = maxTempArr[i];
@@ -127,23 +128,20 @@
 				minTemp = minTempArr[i];
 			}
 		}
-		//Amplitude cases
-		if (!minTemp && !maxTemp) {
-			return Math.round(minTemp + maxTemp);
-		} else if (!minTemp && maxTemp) {
-			return Math.round(minTemp * -1 + maxTemp);
-		} else if (minTemp && maxTemp) {
-			return Math.round(minTemp * -1 + maxTemp);
-		} else if (minTemp && !maxTemp) {
-			return Math.round(minTemp + maxTemp * -1);
-		}
+		return {
+			amplitude: Math.abs(maxTemp - minTemp),
+			minTemp
+		};
 	}
-	$: amplitudeWidth = amplitude(forecast);
 
-	function localAmplitude(min: number, max: number) {}
+	function localAmplitude(maxCols: number, min: number, max: number, minTemp: number) {
+		let startCol: number = Math.round(min) - Math.round(minTemp) + 1;
+		let endCol: number = Math.round(max) - Math.round(minTemp) + 1;
 
-	let rootEl: HTMLDivElement;
-	$: rootEl && rootEl.style.setProperty('--width', `${amplitudeWidth}%`);
+		let gridCols = `grid-template-columns:repeat(${maxCols}, 1fr)`;
+		let startEnd = `grid-column:${startCol}/${endCol}`;
+		return { gridCols, startEnd };
+	}
 </script>
 
 <form class="w-full mb-[10.5rem]" bind:this={formEl} method="POST" use:enhance>
@@ -178,6 +176,13 @@
 			/>
 		</svg>
 	</label>
+	{#if errorMessage}
+		<div class="flex justify-center">
+			<p class="text-red-500 w-max mt-2">
+				{errorMessage}
+			</p>
+		</div>
+	{/if}
 </form>
 <section
 	class="bg-bg-main pt-[8.875rem] pb-16 px-8 rounded-3xl relative flex flex-col gap-10 max-w-[38.5rem]"
@@ -308,9 +313,23 @@
 				</p>
 				<div class="flex gap-3 items-center">
 					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.min)}°C</h2>
-					<div class="w-32 bg-black bg-opacity-10 relative h-2 rounded-lg" bind:this={rootEl}>
+					<div
+						class="w-32 bg-black bg-opacity-10 h-2 rounded-lg grid"
+						style={localAmplitude(
+							amplitude(forecast).amplitude,
+							f.temp.min,
+							f.temp.max,
+							amplitude(forecast).minTemp
+						).gridCols}
+					>
 						<div
-							class="rounded-lg absolute items-center w-20 h-2 bg-gradient-to-r from-sky-300 to-emerald-300 z-10 amplitude-bar"
+							class="rounded-lg items-center h-2 bg-gradient-to-r from-sky-300 to-emerald-300 z-10 grid"
+							style={localAmplitude(
+								amplitude(forecast).amplitude,
+								f.temp.min,
+								f.temp.max,
+								amplitude(forecast).minTemp
+							).startEnd}
 						></div>
 					</div>
 					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.max)}°C</h2>
@@ -319,12 +338,3 @@
 		</div>
 	{/each}
 </section>
-
-<style lang="postcss">
-	:root {
-		--width: inherit;
-	}
-	.amplitude-bar {
-		width: var(--width);
-	}
-</style>
