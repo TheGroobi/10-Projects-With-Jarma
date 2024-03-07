@@ -134,13 +134,15 @@
 		};
 	}
 
-	function localAmplitude(maxCols: number, min: number, max: number, minTemp: number) {
+	$: maxCols = amplitude(forecast).amplitude;
+	$: minTemp = amplitude(forecast).minTemp;
+	$: gridCols = `grid-template-columns:repeat(${maxCols}, 1fr)`;
+
+	function localAmplitude(min: number, max: number, minTemp: number) {
 		let startCol: number = Math.round(min) - Math.round(minTemp) + 1;
 		let endCol: number = Math.round(max) - Math.round(minTemp) + 1;
 
-		let gridCols = `grid-template-columns:repeat(${maxCols}, 1fr)`;
-		let startEnd = `grid-column:${startCol}/${endCol}`;
-		return { gridCols, startEnd };
+		return `grid-column:${startCol}/${endCol}`;
 	}
 </script>
 
@@ -313,23 +315,10 @@
 				</p>
 				<div class="flex gap-3 items-center">
 					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.min)}°C</h2>
-					<div
-						class="w-32 bg-black bg-opacity-10 h-2 rounded-lg grid"
-						style={localAmplitude(
-							amplitude(forecast).amplitude,
-							f.temp.min,
-							f.temp.max,
-							amplitude(forecast).minTemp
-						).gridCols}
-					>
+					<div class="w-32 bg-black bg-opacity-10 h-2 rounded-lg grid" style={gridCols}>
 						<div
 							class="rounded-lg items-center h-2 bg-gradient-to-r from-sky-300 to-emerald-300 z-10 grid"
-							style={localAmplitude(
-								amplitude(forecast).amplitude,
-								f.temp.min,
-								f.temp.max,
-								amplitude(forecast).minTemp
-							).startEnd}
+							style={localAmplitude(f.temp.min, f.temp.max, minTemp)}
 						></div>
 					</div>
 					<h2 class="text-clampMedium font-bold">{Math.round(f.temp.max)}°C</h2>
