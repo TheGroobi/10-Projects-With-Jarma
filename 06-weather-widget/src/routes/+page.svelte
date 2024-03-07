@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import type { PageData } from './$types';
 
-	export let data;
-	export let form;
+	export let data: PageData;
+	export let form: PageData;
 
 	let forecast = data?.forecast.daily;
 	let weather = data?.weather;
