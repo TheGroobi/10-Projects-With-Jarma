@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { writable } from "svelte/store";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDcErUEgHQfixAdkLWwSiuyKOzDg2R6BYs",
@@ -13,8 +13,22 @@ const firebaseConfig = {
   measurementId: "G-9TJN3KZV2R",
 };
 
-// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-export const analytics = getAnalytics(app);
 export const db = getFirestore();
 export const auth = getAuth();
+
+function userStore() {
+  let unsubscribe: () => void
+  const { subscribe } = writable(auth?.currentUser, (set) => {
+    unsubscribe = onAuthStateChanged(auth, (user) => {
+      set(user);
+    });
+
+    return () => unsubscribe();
+  });
+
+  return {
+    subscribe,
+  };
+}
+export const user = userStore()

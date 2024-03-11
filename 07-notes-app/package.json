@@ -28,6 +28,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@tinymce/tinymce-svelte": "^2.0.1",
 		"firebase": "^10.8.1"
 	}
 }
