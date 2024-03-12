@@ -1,3 +1,7 @@
+import { auth } from '$lib/firebase';
+import { signOut } from 'firebase/auth';
+import { goto } from '$app/navigation'
+
 
 export function handleEnterSubmit(e: KeyboardEvent, form: HTMLFormElement) {
     if (e.key === 'Enter') {
@@ -40,3 +44,9 @@ export const tinymceConfig = {
     }`
 }
 
+export function signOutWithGoogle() {
+    signOut(auth);
+    setTimeout(() => {
+        goto('/');
+    }, 200);
+}

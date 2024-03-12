@@ -1,9 +1,16 @@
 <!-- individual note page -->
 <script lang="ts">
 	import type { Note } from '$types/Note.type.ts';
+	import { scale, fade } from 'svelte/transition';
 	import CalendarIcon from '$lib/icons/CalendarIcon.svelte';
+	import AuthCheck from '$lib/components/AuthCheck.svelte';
 	import Editor from '@tinymce/tinymce-svelte';
-	import { handleEnterSubmit, TINYMCE_API_KEY, tinymceConfig } from '$lib/index';
+	import {
+		handleEnterSubmit,
+		TINYMCE_API_KEY,
+		tinymceConfig,
+		signOutWithGoogle,
+	} from '$lib/index';
 
 	let notes: Note[] = [
 		{
@@ -36,47 +43,57 @@
 	let note: string = '';
 </script>
 
-<div class="mx-8 mt-8 w-[calc(100vw - 4rem)]">
-	<header
-		class="text-text-white font-bold flex flex-col min-[610px]:flex-row gap-2 justify-between w-[calc(100vw-4rem)]">
-		<div class="flex gap-2">
-			<button class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
-				>Wyloguj</button>
-			<a
-				href="/"
-				class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
-				>Powrót</a>
-		</div>
-		<form class="flex gap-2">
-			<button class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
-				>Usuń notatkę</button>
-			<button
-				type="submit"
-				class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
-				>Zapisz</button>
-			<input type="hidden" bind:value={note} name="note" />
-		</form>
-	</header>
-	<section class="mt-16 md:w-[calc(100vw - 8rem)] xl:w-[calc(100vw - 16rem)] md:mx-16 xl:mx-32">
-		<div
-			class="bg-bg-main flex flex-col justify-center items-center px-8 sm:px-16 pt-12 pb-6 gap-12">
-			<form class="flex flex-col gap-6 justify-center items-center w-full" bind:this={formEl}>
-				<textarea
-					id="title"
-					name="title"
-					class="font-extrabold tracking-[-0.036rem] w-full text-clampHuge leading-[3rem] bg-bg-main min-h-16 text-text-white overflow-y-auto resize-none text-center"
-					rows="1"
-					on:keydown={e => handleEnterSubmit(e, formEl)}
-					placeholder="Twój tytuł notatki..." />
-				<p class="flex items-center gap-3 text-text-gray text-clampMedium font-normal">
-					<CalendarIcon />
-					{notes[0].date.toLocaleString('pl-PL')}
-				</p>
+<AuthCheck>
+	<div
+		class="mx-8 mt-8 w-[calc(100vw - 4rem)]"
+		in:scale={{ duration: 750, start: 0.7, opacity: 0.5 }}
+		out:fade={{ duration: 200 }}>
+		<header
+			class="text-text-white font-bold flex flex-col min-[610px]:flex-row gap-2 justify-between w-[calc(100vw-4rem)]">
+			<div class="flex gap-2">
+				<button
+					class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
+					on:click={signOutWithGoogle}>Wyloguj</button>
+				<a
+					href="/notes"
+					class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
+					>Powrót</a>
+			</div>
+			<form class="flex gap-2">
+				<button
+					class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
+					>Usuń notatkę</button>
+				<button
+					type="submit"
+					class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
+					>Zapisz</button>
+				<input type="hidden" bind:value={note} name="note" />
 			</form>
-			<Editor bind:value={note} conf={tinymceConfig} apiKey={TINYMCE_API_KEY} />
-		</div>
-	</section>
-</div>
+		</header>
+		<section
+			class="mt-16 md:w-[calc(100vw - 8rem)] xl:w-[calc(100vw - 16rem)] md:mx-16 xl:mx-32">
+			<div
+				class="bg-bg-main flex flex-col justify-center items-center px-8 sm:px-16 pt-12 pb-6 gap-12">
+				<form
+					class="flex flex-col gap-6 justify-center items-center w-full"
+					bind:this={formEl}>
+					<textarea
+						id="title"
+						name="title"
+						class="font-extrabold tracking-[-0.036rem] w-full text-clampHuge leading-[3rem] bg-bg-main min-h-16 text-text-white overflow-y-auto resize-none text-center"
+						rows="1"
+						on:keydown={e => handleEnterSubmit(e, formEl)}
+						placeholder="Twój tytuł notatki..." />
+					<p class="flex items-center gap-3 text-text-gray text-clampMedium font-normal">
+						<CalendarIcon />
+						{notes[0].date.toLocaleString('pl-PL')}
+					</p>
+				</form>
+				<Editor bind:value={note} conf={tinymceConfig} apiKey={TINYMCE_API_KEY} />
+			</div>
+		</section>
+	</div>
+</AuthCheck>
 
 <!--
 	dodać hover do buttonów i transition na page

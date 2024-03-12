@@ -6,7 +6,9 @@ export default {
       colors: {
         'bg-main': 'rgba(30, 41, 59, 1)',
         'bg-secondary': 'rgba(51, 65, 85, 1)',
+        'bg-secondaryHov': 'rgba(60, 75, 95, 1)',
         'brand': 'rgba(20, 184, 166, 1)',
+        'brandHov': 'rgba(40, 200, 180, 1)',
         'text-gray': 'rgba(148, 163, 184, 1)',
         'text-white': 'rgba(248, 250, 252, 1)',
       },
