@@ -6,8 +6,7 @@ import { goto } from '$app/navigation'
 export const TINYMCE_API_KEY: string = "9bg0drjqatftklvnmlensjqug66xm0h3ydnocv8zhcyvle3k"
 
 export const tinymceConfig = {
-    // selector: 'textarea#note',
-    plugins: 'advlist lists emoticons image link typography visualblocks autoresize codesample autolink quickbars fullscreen ',
+    plugins: 'advlist lists emoticons image link typography visualblocks codesample autolink quickbars fullscreen',
     toolbar: ['bold italic underline | alignleft aligncenter bullist | link quickimage emoticons codesample | blocks | undo redo'],
     link_default_target: '_blank',
     toolbar_mode: 'wrap',

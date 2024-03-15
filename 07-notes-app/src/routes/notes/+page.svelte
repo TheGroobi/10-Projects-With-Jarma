@@ -1,7 +1,7 @@
 <!-- browse notes page -->
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { Note } from '$types/Note.type.ts';
+	import type { Note } from '$types/Note.type';
 	import CalendarIcon from '$lib/icons/CalendarIcon.svelte';
 	import SearchIcon from '$lib/icons/SearchIcon.svelte';
 	import { fade } from 'svelte/transition';
@@ -10,9 +10,9 @@
 
 	export let data: PageData;
 
+	let notes: Note[] = data.data?.notes;
 	let searchVal: string = '';
 	let debounceTimer: NodeJS.Timeout;
-	let notes: Note[] = data?.data[0].notes;
 
 	async function filterNotes(e: KeyboardEvent) {
 		clearTimeout(debounceTimer);
@@ -29,7 +29,7 @@
 					},
 				});
 				const data = await res.json();
-				notes = data?.data[0].notes;
+				notes = data?.data.notes;
 			}, 350);
 		}
 	}
@@ -67,7 +67,7 @@
 							<CalendarIcon />
 							{n.date.toLocaleString('pl-PL')}
 						</p>
-						<p class="overflow-ellipsis font-normal text-clampMedium">{n.note}</p>
+						<p class="overflow-ellipsis font-normal text-clampMedium">{n.content}</p>
 					</div>
 					<form
 						method=""

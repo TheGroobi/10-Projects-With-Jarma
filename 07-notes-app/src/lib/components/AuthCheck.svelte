@@ -1,6 +1,8 @@
 <script lang="ts">
+	// import { page } from '$app/stores';
 	import { user } from '$lib/firebase';
 	import { signInWithGoogle } from '$lib/index';
+	// import { fade } from 'svelte/transition';
 </script>
 
 {#if $user}

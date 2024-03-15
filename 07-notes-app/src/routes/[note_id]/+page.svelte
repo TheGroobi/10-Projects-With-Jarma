@@ -14,14 +14,25 @@
 		signOutWithGoogle,
 	} from '$lib/index';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
-	let note_id: number = Number($page.params.note_id);
 	export let data: PageData;
-	let notes: Note[] = data?.data[0].notes;
-	let note: Note = data?.data[0].notes[note_id];
 
-	let deleteForm: HTMLFormElement;
+	let notes: Note[] = data.data?.notes;
+	let note_id: number = Number($page.params.note_id);
+	let note: Note | undefined = notes.find(note => note.id === note_id);
+	onMount(() => {
+		if (note !== undefined) {
+			return;
+		}
+		goto('/notes');
+	});
+
+	let titleForm: HTMLFormElement;
 	let noteText: string = '';
+	let noteTitle: string = '';
+	let now: string = new Date().toLocaleString();
 </script>
 
 <AuthCheck>
@@ -40,38 +51,44 @@
 					class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
 					>Powrót</a>
 			</div>
-			<form
-				class="flex gap-2"
-				method="POST"
-				on:submit|preventDefault={() => console.log('kjsadh')}
-				bind:this={deleteForm}
-				action="?/delete"
-				use:enhance>
-				<button
-					class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
-					on:click={() => deleteForm.submit()}>Usuń notatkę</button>
-				<button
-					type="submit"
-					class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
-					>Zapisz</button>
-				<!-- <input type="hidden" bind:value={note.id} name="note" /> -->
-			</form>
+			<div class="flex gap-2">
+				<form method="POST" on:submit|preventDefault={() => {}} use:enhance>
+					<button
+						formaction="?/delete"
+						class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
+						type="submit">Usuń notatkę</button>
+					<input type="hidden" bind:value={note_id} name="noteIndex" />
+				</form>
+				<form method="POST" on:submit|preventDefault={() => {}} use:enhance>
+					<button
+						formaction="?/save"
+						class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
+						type="submit">Zapisz</button>
+					<input type="hidden" bind:value={noteTitle} name="noteTitle" />
+					<input type="hidden" bind:value={now} name="noteDate" />
+					<input type="hidden" bind:value={note_id} name="noteId" />
+					<input type="hidden" bind:value={noteText} name="noteText" />
+				</form>
+			</div>
 		</header>
 		<section
 			class="mt-16 md:w-[calc(100vw - 8rem)] xl:w-[calc(100vw - 16rem)] md:mx-16 xl:mx-32">
 			<div
 				class="bg-bg-main flex flex-col justify-center items-center px-8 sm:px-16 pt-12 pb-6 gap-12">
-				<form class="flex flex-col gap-6 justify-center items-center w-full">
-					<textarea
+				<form
+					class="flex flex-col gap-6 justify-center items-center w-full"
+					bind:this={titleForm}
+					method="POST"
+					action="?/save">
+					<input
 						id="title"
 						name="title"
 						class="font-extrabold tracking-[-0.036rem] w-full text-clampHuge leading-[3rem] bg-bg-main min-h-16 text-text-white overflow-y-auto resize-none text-center"
-						rows="1"
-						on:keydown={e => handleEnterSubmit(e, formEl)}
+						bind:value={noteTitle}
 						placeholder="Twój tytuł notatki..." />
 					<p class="flex items-center gap-3 text-text-gray text-clampMedium font-normal">
 						<CalendarIcon />
-						Date here
+						{now}
 					</p>
 				</form>
 				<Editor bind:value={noteText} conf={tinymceConfig} apiKey={TINYMCE_API_KEY} />
