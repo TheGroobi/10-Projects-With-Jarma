@@ -1,6 +1,8 @@
 <!-- individual note page -->
 <script lang="ts">
 	import type { Note } from '$types/Note.type.ts';
+	import type { PageData } from './$types';
+	import { enhance } from '$app/forms';
 	import { scale, fade } from 'svelte/transition';
 	import CalendarIcon from '$lib/icons/CalendarIcon.svelte';
 	import AuthCheck from '$lib/components/AuthCheck.svelte';
@@ -11,36 +13,15 @@
 		tinymceConfig,
 		signOutWithGoogle,
 	} from '$lib/index';
+	import { page } from '$app/stores';
 
-	let notes: Note[] = [
-		{
-			title: 'Lista Zakupów na sobotni obiad',
-			note: 'Lorem ipsum dolor sit amet consectetur. Nunc molestie egestas consequat odio sed ac consequat cum ullamcorper. Bibendum eget in arcu dictum nec pretium. Purus placerat amet quisque tincidunt massa eleifend...',
-			date: new Date(),
-			id: 1,
-		},
-		{
-			title: 'Plan treningowy na nadchodzący tydzień',
-			note: 'Lorem ipsum dolor sit amet consectetur. Nunc molestie egestas consequat odio sed ac consequat cum ullamcorper. Bibendum eget in arcu dictum nec pretium. Purus placerat amet quisque tincidunt massa eleifend...',
-			date: new Date(),
-			id: 2,
-		},
-		{
-			title: 'Pomysły na weekendowe wycieczki',
-			note: 'Lorem ipsum dolor sit amet consectetur. Nunc molestie egestas consequat odio sed ac consequat cum ullamcorper. Bibendum eget in arcu dictum nec pretium. Purus placerat amet quisque tincidunt massa eleifend...',
-			date: new Date(),
-			id: 3,
-		},
-		{
-			title: 'Pomysły na weekendowe wycieczki',
-			note: 'Lorem ipsum dolor sit amet consectetur. Nunc molestie egestas consequat odio sed ac consequat cum ullamcorper. Bibendum eget in arcu dictum nec pretium. Purus placerat amet quisque tincidunt massa eleifend...',
-			date: new Date(),
-			id: 4,
-		},
-	];
+	let note_id: number = Number($page.params.note_id);
+	export let data: PageData;
+	let notes: Note[] = data?.data[0].notes;
+	let note: Note = data?.data[0].notes[note_id];
 
-	let formEl: HTMLFormElement;
-	let note: string = '';
+	let deleteForm: HTMLFormElement;
+	let noteText: string = '';
 </script>
 
 <AuthCheck>
@@ -59,24 +40,28 @@
 					class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
 					>Powrót</a>
 			</div>
-			<form class="flex gap-2">
+			<form
+				class="flex gap-2"
+				method="POST"
+				on:submit|preventDefault={() => console.log('kjsadh')}
+				bind:this={deleteForm}
+				action="?/delete"
+				use:enhance>
 				<button
 					class="px-8 py-2 leading-[150%] bg-bg-main rounded-lg grid place-items-center"
-					>Usuń notatkę</button>
+					on:click={() => deleteForm.submit()}>Usuń notatkę</button>
 				<button
 					type="submit"
 					class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main"
 					>Zapisz</button>
-				<input type="hidden" bind:value={note} name="note" />
+				<!-- <input type="hidden" bind:value={note.id} name="note" /> -->
 			</form>
 		</header>
 		<section
 			class="mt-16 md:w-[calc(100vw - 8rem)] xl:w-[calc(100vw - 16rem)] md:mx-16 xl:mx-32">
 			<div
 				class="bg-bg-main flex flex-col justify-center items-center px-8 sm:px-16 pt-12 pb-6 gap-12">
-				<form
-					class="flex flex-col gap-6 justify-center items-center w-full"
-					bind:this={formEl}>
+				<form class="flex flex-col gap-6 justify-center items-center w-full">
 					<textarea
 						id="title"
 						name="title"
@@ -86,10 +71,10 @@
 						placeholder="Twój tytuł notatki..." />
 					<p class="flex items-center gap-3 text-text-gray text-clampMedium font-normal">
 						<CalendarIcon />
-						{notes[0].date.toLocaleString('pl-PL')}
+						Date here
 					</p>
 				</form>
-				<Editor bind:value={note} conf={tinymceConfig} apiKey={TINYMCE_API_KEY} />
+				<Editor bind:value={noteText} conf={tinymceConfig} apiKey={TINYMCE_API_KEY} />
 			</div>
 		</section>
 	</div>

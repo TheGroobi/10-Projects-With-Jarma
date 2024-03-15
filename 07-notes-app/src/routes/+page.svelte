@@ -1,25 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { auth, user } from '$lib/firebase';
-	import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+	import { user } from '$lib/firebase';
+	import { signInWithGoogle, setUidCookies } from '$lib/index';
 	import { fly } from 'svelte/transition';
 	import { backInOut, cubicInOut } from 'svelte/easing';
 
-	async function signInWithGoogle() {
-		const provider = new GoogleAuthProvider();
-		const user = await signInWithPopup(auth, provider);
-		console.log(user);
-	}
-
+	$: countdownTimer = 4;
 	$: if ($user) {
 		setTimeout(() => {
 			countdownTimer--;
 		}, 1000);
 		if (countdownTimer <= 0) {
+			setUidCookies($user?.uid);
 			goto('/notes');
 		}
 	}
-	$: countdownTimer = 4;
 </script>
 
 <div class="flex justify-center items-center h-svh">

@@ -1,13 +1,7 @@
 import { auth } from '$lib/firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { signOut } from 'firebase/auth';
 import { goto } from '$app/navigation'
-
-
-export function handleEnterSubmit(e: KeyboardEvent, form: HTMLFormElement) {
-    if (e.key === 'Enter') {
-        form.submit();
-    }
-}
 
 export const TINYMCE_API_KEY: string = "9bg0drjqatftklvnmlensjqug66xm0h3ydnocv8zhcyvle3k"
 
@@ -20,7 +14,7 @@ export const tinymceConfig = {
     menubar: false,
     skin: 'oxide-dark',
     icons: 'material',
-    content_css: ['dark', 'css.css'],
+    content_css: 'dark',
     min_height: 550,
     language: 'pl',
     max_height: 550,
@@ -44,9 +38,30 @@ export const tinymceConfig = {
     }`
 }
 
+export function handleEnterSubmit(e: KeyboardEvent, form: HTMLFormElement) {
+    if (e.key === 'Enter') {
+        form.submit();
+    }
+}
+
 export function signOutWithGoogle() {
     signOut(auth);
     setTimeout(() => {
         goto('/');
     }, 200);
+}
+
+export async function signInWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    const user = await signInWithPopup(auth, provider);
+}
+
+export async function setUidCookies(uid: string) {
+    fetch('/api', {
+        method: 'POST',
+        body: JSON.stringify({ uid }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 }
