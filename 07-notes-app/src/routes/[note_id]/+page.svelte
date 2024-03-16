@@ -11,7 +11,7 @@
 	import { page } from '$app/stores';
 
 	export let data: any;
-	export let form;
+	export let form: any;
 
 	let noteText: string = data?.content;
 	let noteTitle = data?.title;
@@ -20,7 +20,7 @@
 
 	let showDeleteModal: boolean = false;
 
-	let autosaveToggle: boolean = false;
+	let autosaveToggle: boolean = data?.toggle;
 	let autosaveTimeout: NodeJS.Timeout;
 
 	async function handleAutosave() {
@@ -40,8 +40,12 @@
 					'Content-Type': 'application/json',
 				},
 			});
-			const data = await res.json();
-			saveStatus = data?.saveStatus;
+			if (res.ok) {
+				const data = await res.json();
+				saveStatus = data?.saveStatus;
+			} else {
+				saveStatus = 'Zapisywanie nie powiodło się';
+			}
 			setTimeout(() => {
 				saveStatus = '';
 			}, 2000);
@@ -58,7 +62,24 @@
 		}, 2000);
 	}
 
-	$: console.log(data);
+	let toggleDisabled: boolean = false;
+	async function handleAutosaveToggle() {
+		autosaveToggle = !autosaveToggle;
+
+		toggleDisabled = true;
+		setTimeout(() => (toggleDisabled = false), 350);
+
+		console.log('asd');
+		const res = await fetch('/api', {
+			method: 'POST',
+			body: JSON.stringify({
+				toggle: autosaveToggle,
+			}),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+	}
 </script>
 
 {#if data.error}
@@ -91,7 +112,11 @@
 				<div class="flex gap-4 min-[460px]:flex-row flex-col">
 					<div
 						class="flex min-[696px]:flex-col min-[765px]:flex-row flex-row-reverse gap-2 justify-center">
-						<Switch class="self-center" bind:checked={autosaveToggle} />
+						<Switch
+							class="self-center"
+							on:click={handleAutosaveToggle}
+							bind:checked={autosaveToggle}
+							bind:disabled={toggleDisabled} />
 						<p class="self-center font-medium">Autozapis</p>
 					</div>
 					<div class="flex gap-2 w-full">

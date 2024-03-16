@@ -25,11 +25,17 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     const docUserRef = doc(db, 'users', `${uid}`)
     const userCol = collection(docUserRef, 'notes')
 
-    await updateDoc(doc(userCol, `${res.id}`), {
-    'content': res.content,
-    'title': res.title,
-    'date': Timestamp.fromDate(new Date()),
-    })
+    if (res.content && res.title) {
+        await updateDoc(doc(userCol, `${res.id}`), {
+            'content': res.content,
+            'title': res.title,
+            'date': Timestamp.fromDate(new Date()),
+        })
+        return json({ saveStatus: 'Autozapis, zapisano notatkę!' })
+    }
 
-    return json({ saveStatus: 'Autozapis, zapisano notatkę!' })
+    await updateDoc(docUserRef, {
+        toggle: res.toggle
+    })
+    return new Response()
 }

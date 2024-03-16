@@ -7,16 +7,19 @@ export const load = (async ({ params, cookies }) => {
     const id = params.note_id
     
     const docUserRef = doc(db, 'users', `${uid}`)
+    const snapUser = getDoc(docUserRef)
+    const userData = (await snapUser).data()
     const userCol = collection(docUserRef, 'notes')
     const docNoteRef = doc(userCol, `${id}`)
     const snapNote = getDoc(docNoteRef)
-    const noteData = await (await snapNote).data()
+    const noteData = (await snapNote).data()
 
     if (noteData !== undefined) {
         return {
             content: noteData.content,
             title: noteData.title,
             date: noteData.date = new Date(noteData?.date.seconds * 1000).toLocaleString(),
+            toggle: userData ? userData.toggle : false
         };
     } else {
         return { error: 'notatka nie istenieje' }
