@@ -7,7 +7,6 @@
 	import AuthCheck from '$lib/components/AuthCheck.svelte';
 	import ModalAddNote from '$lib/components/ModalAddNote.svelte';
 	import { enhance } from '$app/forms';
-	import { flip } from 'svelte/animate';
 
 	export let data: any;
 
@@ -37,6 +36,7 @@
 			}, 350);
 		}
 	}
+
 </script>
 
 <AuthCheck>
@@ -67,39 +67,51 @@
 				<SearchIcon />
 			</label>
 		</form>
-		<section class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
-			{#each notes as n, i}
-				<div class="bg-bg-main p-8 flex flex-col justify-between">
-					<div class="flex flex-col gap-4">
-						<h1 class="text-clampBig font-semibold tracking-[-0.01406rem] break-words">
-							{n.title}
-						</h1>
-						<p
-							class="flex items-center gap-3 text-text-gray text-clampMedium font-normal">
-							<CalendarIcon />
-							{n.date}
-						</p>
-						<p class="font-normal text-clampMedium line-clamp-3">
-							{n.content}
-						</p>
+		{#if notes.length > 0}
+			<section class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
+				{#each notes as n, i}
+					<div class="bg-bg-main p-8 flex flex-col justify-between">
+						<div class="flex flex-col gap-4">
+							<h1
+								class="text-clampBig font-semibold tracking-[-0.01406rem] break-words">
+								{n.title}
+							</h1>
+							<p
+								class="flex items-center gap-3 text-text-gray text-clampMedium font-normal">
+								<CalendarIcon />
+								{n.date}
+							</p>
+							<p class="font-normal text-clampMedium line-clamp-3">
+								{n.content}
+							</p>
+						</div>
+						<form
+							method="POST"
+							action="?/deleteNote"
+							class="mt-6 font-bold text-base flex-col min-[435px]:flex-row flex gap-[0.62rem] w-full justify-end"
+							use:enhance>
+							<input type="hidden" name="noteId" bind:value={ids[i]} />
+							<button
+								type="submit"
+								class="px-8 py-2 leading-[150%] rounded-lg bg-bg-secondary grid place-items-center shadow-black/50 shadow-md hover:bg-bg-secondaryHov transition-all"
+								>Usuń notatkę</button>
+							<a
+								href="/{ids[i]}"
+								class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main hover:text-bg-secondary shadow-black/50 shadow-md hover:bg-brandHov transition-all"
+								>Edytuj</a>
+						</form>
 					</div>
-					<form
-						method="POST"
-						action="?/deleteNote"
-						class="mt-6 font-bold text-base flex-col min-[435px]:flex-row flex gap-[0.62rem] w-full justify-end"
-						use:enhance>
-						<input type="hidden" name="noteId" bind:value={ids[i]} />
-						<button
-							type="submit"
-							class="px-8 py-2 leading-[150%] rounded-lg bg-bg-secondary grid place-items-center shadow-black/50 shadow-md hover:bg-bg-secondaryHov transition-all"
-							>Usuń notatkę</button>
-						<a
-							href="/{ids[i]}"
-							class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main hover:text-bg-secondary shadow-black/50 shadow-md hover:bg-brandHov transition-all"
-							>Edytuj</a>
-					</form>
-				</div>
-			{/each}
-		</section>
+				{/each}
+			</section>
+		{:else}
+			<div class="flex justify-center w-full items-center h-[20vh]">
+				<p class="bg-bg-main p-4 rounded-2xl text-text-white">
+					Nie masz jeszcze żadnych notek...
+					<button
+						on:click={() => (showModal = !showModal)}
+						class="text-brand font-bold hover:text-brandHov">Dodaj Notatkę</button>
+				</p>
+			</div>
+		{/if}
 	</div>
 </AuthCheck>

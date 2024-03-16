@@ -11,7 +11,7 @@
 	<div class="h-svh grid place-items-center">
 		<p class="bg-bg-main p-4 rounded-2xl text-text-white">
 			Musisz być zalogowany żeby przejść na tę stronę.
-			<button on:click={signInWithGoogle} class="text-brand font-bold">Zaloguj się</button>
+			<button on:click={signInWithGoogle} class="text-brand font-bold hover:text-brandHov">Zaloguj się</button>
 		</p>
 	</div>
 {/if}
