@@ -11,6 +11,7 @@ export const load = (async ({ params, cookies }) => {
     const docNoteRef = doc(userCol, `${id}`)
     const snapNote = getDoc(docNoteRef)
     const noteData = await (await snapNote).data()
+
     if (noteData !== undefined) {
         return {
             content: noteData.content,
@@ -18,9 +19,7 @@ export const load = (async ({ params, cookies }) => {
             date: noteData.date = new Date(noteData?.date.seconds * 1000).toLocaleString(),
         };
     } else {
-        return {
-            error: 'notatka nie istenieje'
-        }
+        return { error: 'notatka nie istenieje' }
     }
 }) satisfies PageServerLoad;
 
@@ -45,7 +44,6 @@ export const actions = {
         const formData = await request.formData();
         const content = formData.get('noteText');
         const title = formData.get('noteTitle');
-        const date = new Date(formData.get('noteDate') as string);
 
         const docUserRef = doc(db, 'users', `${uid}`)
         const userCol = collection(docUserRef, 'notes')
@@ -53,7 +51,7 @@ export const actions = {
         await updateDoc(doc(userCol, `${id}`), {
         'content': content,
         'title': title,
-        'date': Timestamp.fromDate(date),
+        'date': Timestamp.fromDate(new Date()),
         })
 
         return { saveStatus: 'Notatka Została zapisana prawidłowo!' }

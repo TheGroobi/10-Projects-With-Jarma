@@ -6,7 +6,6 @@
 	export let deleteNoteId: string;
 
 	let dialog: HTMLDialogElement;
-	let formEl: HTMLFormElement;
 
 	$: if (dialog && showDeleteModal) dialog.showModal();
 </script>

@@ -16,31 +16,49 @@
 	let noteText: string = data?.content;
 	let noteTitle = data?.title;
 	let noteDate: string = data?.date;
-	let autosaveToggle: boolean = false;
-	let showDeleteModal: boolean = false;
-	let autosaveInterval: NodeJS.Timeout;
-	let saveFormEl: HTMLFormElement;
 	$: saveStatus = form?.saveStatus;
 
-	$: if (autosaveToggle) {
-		console.log('Setting interval');
-		autosaveInterval = setInterval(() => {
-			saveFormEl.submit();
-		}, 15000);
-	} else {
-		console.log('Cleared interval');
-		clearInterval(autosaveInterval);
+	let showDeleteModal: boolean = false;
+
+	let autosaveToggle: boolean = false;
+	let autosaveTimeout: NodeJS.Timeout;
+
+	async function handleAutosave() {
+		clearTimeout(autosaveTimeout);
+		if (!autosaveToggle) {
+			return;
+		}
+		autosaveTimeout = setTimeout(async () => {
+			const res = await fetch('/api', {
+				method: 'POST',
+				body: JSON.stringify({
+					content: noteText,
+					title: noteTitle,
+					id: $page.params.note_id,
+				}),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			const data = await res.json();
+			saveStatus = data?.saveStatus;
+			setTimeout(() => {
+				saveStatus = '';
+			}, 2000);
+		}, 7500);
 	}
 
 	$: if (form?.status) {
 		setTimeout(() => goto('/notes'), 250);
 	}
 	$: if (form?.saveStatus) {
+		saveStatus = form?.saveStatus;
 		setTimeout(() => {
-			console.log('sdfsdf');
 			saveStatus = '';
 		}, 2000);
 	}
+
+	$: console.log(data);
 </script>
 
 {#if data.error}
@@ -86,7 +104,6 @@
 						<form
 							method="POST"
 							on:submit|preventDefault={() => {}}
-							bind:this={saveFormEl}
 							use:enhance
 							action="?/saveNote"
 							class="w-full">
@@ -94,7 +111,6 @@
 								class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main h-full md:h-min min-[696px]:w-min w-full"
 								type="submit">Zapisz</button>
 							<input type="hidden" bind:value={noteTitle} name="noteTitle" />
-							<input type="hidden" value={new Date()} name="noteDate" />
 							<input type="hidden" bind:value={noteText} name="noteText" />
 						</form>
 					</div>
@@ -116,11 +132,15 @@
 							<CalendarIcon />
 							{noteDate}
 						</p>
-						{#if form?.saveStatus}
+						{#if saveStatus}
 							<p class="absolute text-green-400 font-medium mt-40">{saveStatus}</p>
 						{/if}
 					</form>
-					<Editor bind:value={noteText} conf={tinymceConfig} apiKey={TINYMCE_API_KEY} />
+					<Editor
+						on:keydown={handleAutosave}
+						bind:value={noteText}
+						conf={tinymceConfig}
+						apiKey={TINYMCE_API_KEY} />
 				</div>
 			</section>
 		</div>

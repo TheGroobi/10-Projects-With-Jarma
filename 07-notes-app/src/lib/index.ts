@@ -36,35 +36,35 @@ export const tinymceConfig = {
     img {
         border-radius: 10px;
     }`
-}
+};
 
 export function handleEnterSubmit(e: KeyboardEvent, form: HTMLFormElement) {
     if (e.key === 'Enter') {
         form.submit();
     }
-}
+};
 
 export function signOutWithGoogle() {
     signOut(auth);
     setTimeout(() => {
         goto('/');
     }, 200);
-}
+};
 
 export async function signInWithGoogle() {
     const provider = new GoogleAuthProvider();
     const user = await signInWithPopup(auth, provider);
-}
+};
 
 export async function setUidCookies(uid: string) {
     fetch('/api', {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify({ uid }),
         headers: {
             'Content-Type': 'application/json',
         },
     });
-}
+};
 
 export const clickOutside: clickOutsideAction = element => {
     function handleClick(event: MouseEvent) {
@@ -84,3 +84,4 @@ export const clickOutside: clickOutsideAction = element => {
         },
     };
 };
+
