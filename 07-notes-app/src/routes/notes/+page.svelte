@@ -1,24 +1,23 @@
 <!-- browse notes page -->
 <script lang="ts">
-	import type { PageData } from './$types';
-	import type { Note } from '$types/Note.type';
 	import CalendarIcon from '$lib/icons/CalendarIcon.svelte';
 	import SearchIcon from '$lib/icons/SearchIcon.svelte';
 	import { fade } from 'svelte/transition';
 	import { signOutWithGoogle } from '$lib/index';
 	import AuthCheck from '$lib/components/AuthCheck.svelte';
 	import ModalAddNote from '$lib/components/ModalAddNote.svelte';
+	import { enhance } from '$app/forms';
+	import { flip } from 'svelte/animate';
 
-	export let data: PageData;
+	export let data: any;
 
-	let notes: any[] = data?.notes;
+	$: notes = data?.notes;
 	let ids = data?.ids;
 
 	let searchVal: string = '';
 	let showModal: boolean = false;
-	let modalForm: string = '';
-	let debounceTimer: NodeJS.Timeout;
 
+	let debounceTimer: NodeJS.Timeout;
 	async function filterNotes(e: KeyboardEvent) {
 		clearTimeout(debounceTimer);
 		if (e.key === 'Enter') {
@@ -53,7 +52,7 @@
 				on:click={() => (showModal = !showModal)}>Dodaj notatkę</button>
 		</div>
 		{#if showModal}
-			<ModalAddNote {modalForm} {showModal} />
+			<ModalAddNote bind:showModal />
 		{/if}
 		<form class="w-full">
 			<label for="searchNote" class="relative flex justify-between">
@@ -85,9 +84,11 @@
 						</p>
 					</div>
 					<form
-						method=""
-						class="mt-6 font-bold text-base flex-col min-[435px]:flex-row flex gap-[0.62rem] w-full justify-end">
-						<input type="hidden" bind:value={ids[i]} />
+						method="POST"
+						action="?/deleteNote"
+						class="mt-6 font-bold text-base flex-col min-[435px]:flex-row flex gap-[0.62rem] w-full justify-end"
+						use:enhance>
+						<input type="hidden" name="noteId" bind:value={ids[i]} />
 						<button
 							type="submit"
 							class="px-8 py-2 leading-[150%] rounded-lg bg-bg-secondary grid place-items-center shadow-black/50 shadow-md hover:bg-bg-secondaryHov transition-all"
