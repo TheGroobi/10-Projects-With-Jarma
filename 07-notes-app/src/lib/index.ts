@@ -2,6 +2,7 @@ import { auth } from '$lib/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { signOut } from 'firebase/auth';
 import { goto } from '$app/navigation'
+import type { clickOutsideAction } from '$types/types.type';
 
 export const TINYMCE_API_KEY: string = "9bg0drjqatftklvnmlensjqug66xm0h3ydnocv8zhcyvle3k"
 
@@ -64,3 +65,22 @@ export async function setUidCookies(uid: string) {
         },
     });
 }
+
+export const clickOutside: clickOutsideAction = element => {
+    function handleClick(event: MouseEvent) {
+        const targetEl = event.target as HTMLElement;
+
+        if (element && !element.contains(targetEl)) {
+            const clickOutsideEvent = new CustomEvent('outside');
+            element.dispatchEvent(clickOutsideEvent);
+        }
+    }
+
+    document.addEventListener('click', handleClick, true);
+
+    return {
+        destroy() {
+            document.removeEventListener('click', handleClick, true);
+        },
+    };
+};

@@ -5,13 +5,15 @@
 	import { fly } from 'svelte/transition';
 	import { backInOut, cubicInOut } from 'svelte/easing';
 
-	$: countdownTimer = 4;
+	let countdownTimer = 4;
 	$: if ($user) {
 		setTimeout(() => {
 			countdownTimer--;
 		}, 1000);
+		if (countdownTimer === 2) {
+			setUidCookies($user?.uid as string);
+		}
 		if (countdownTimer <= 0) {
-			setUidCookies($user?.uid);
 			goto('/notes');
 		}
 	}

@@ -35,6 +35,7 @@ export const actions = {
                 title,
                 date: Timestamp.fromDate(new Date())
             });
+            return { status: 'Notatka została dodana' }
         } else {
             return { error: 'Notatka musi mieć tytuł'}
         }
@@ -50,5 +51,6 @@ export const actions = {
         const notesCollection = collection(docRef, 'notes');
 
         await deleteDoc(doc(notesCollection, `${id}`));
+        return { status: 'Notatka została usunięta'}
     }
 }

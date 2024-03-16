@@ -6,15 +6,20 @@
 	import { signOutWithGoogle } from '$lib/index';
 	import AuthCheck from '$lib/components/AuthCheck.svelte';
 	import ModalAddNote from '$lib/components/ModalAddNote.svelte';
-	import { enhance } from '$app/forms';
+	import ModalDeleteNote from '$lib/components/ModalDeleteNote.svelte';
 
+	// add ts annotation here
 	export let data: any;
+	export let form: any;
 
 	$: notes = data?.notes;
-	let ids = data?.ids;
+	$: ids = data?.ids;
 
 	let searchVal: string = '';
 	let showModal: boolean = false;
+	let showDeleteModal: boolean = false;
+	let deleteButtonDisabled = false;
+	let deleteNoteId: string;
 
 	let debounceTimer: NodeJS.Timeout;
 	async function filterNotes(e: KeyboardEvent) {
@@ -36,7 +41,12 @@
 			}, 350);
 		}
 	}
-
+	$: if (form?.status) {
+		deleteButtonDisabled = true;
+		setTimeout(() => {
+			deleteButtonDisabled = false;
+		}, 300);
+	}
 </script>
 
 <AuthCheck>
@@ -53,6 +63,8 @@
 		</div>
 		{#if showModal}
 			<ModalAddNote bind:showModal />
+		{:else if showDeleteModal}
+			<ModalDeleteNote bind:showDeleteModal {deleteNoteId} />
 		{/if}
 		<form class="w-full">
 			<label for="searchNote" class="relative flex justify-between">
@@ -86,15 +98,15 @@
 							</p>
 						</div>
 						<form
-							method="POST"
-							action="?/deleteNote"
-							class="mt-6 font-bold text-base flex-col min-[435px]:flex-row flex gap-[0.62rem] w-full justify-end"
-							use:enhance>
-							<input type="hidden" name="noteId" bind:value={ids[i]} />
+							class="mt-6 font-bold text-base flex-col min-[435px]:flex-row flex gap-[0.62rem] w-full justify-end">
 							<button
-								type="submit"
+								on:click={() => {
+									showDeleteModal = !showDeleteModal;
+									deleteNoteId = ids[i];
+								}}
 								class="px-8 py-2 leading-[150%] rounded-lg bg-bg-secondary grid place-items-center shadow-black/50 shadow-md hover:bg-bg-secondaryHov transition-all"
-								>Usuń notatkę</button>
+								disabled={deleteButtonDisabled}>Usuń notatkę</button>
+
 							<a
 								href="/{ids[i]}"
 								class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main hover:text-bg-secondary shadow-black/50 shadow-md hover:bg-brandHov transition-all"

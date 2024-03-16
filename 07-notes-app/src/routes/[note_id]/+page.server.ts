@@ -26,23 +26,27 @@ export const load = (async ({ params, cookies }) => {
 
 
 export const actions = {
-    delete: async ({ params, cookies }) => {
+    deleteNote: async ({ params, cookies }) => {
         const uid = cookies.get('uid')
         const id = params.note_id
         
         const docUserRef = doc(db, 'users', `${uid}`)
         const userCol = collection(docUserRef, 'notes')
-        // await deleteDoc(doc(userCol, `${id}`))
+
+        await deleteDoc(doc(userCol, `${id}`))
+
+        return { status: 'Notatka została usunięta'}
     },
 
-    save: async ({ params, request, cookies }) => {
+    saveNote: async ({ params, request, cookies }) => {
+        const uid = cookies.get('uid')
+        const id = params.note_id
+
         const formData = await request.formData();
         const content = formData.get('noteText');
         const title = formData.get('noteTitle');
         const date = new Date(formData.get('noteDate') as string);
-        const id = params.note_id
 
-        const uid = cookies.get('uid')
         const docUserRef = doc(db, 'users', `${uid}`)
         const userCol = collection(docUserRef, 'notes')
 
@@ -51,5 +55,7 @@ export const actions = {
         'title': title,
         'date': Timestamp.fromDate(date),
         })
-    }
+
+        return { saveStatus: 'Notatka Została zapisana prawidłowo!' }
+    },
 } satisfies Actions

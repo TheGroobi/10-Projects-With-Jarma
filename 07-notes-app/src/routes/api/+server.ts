@@ -8,7 +8,6 @@ export const PATCH: RequestHandler = async ({ request, cookies }) => {
     const docRef = doc(db, 'users', `${uid}`)
     const searchVal = await request.json()
     const data = await (await getDoc(docRef)).data()
-    //add query for title like searchVal
 
     return json({ data })
 };

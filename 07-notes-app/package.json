@@ -29,6 +29,11 @@
 	"type": "module",
 	"dependencies": {
 		"@tinymce/tinymce-svelte": "^2.0.1",
-		"firebase": "^10.8.1"
+		"bits-ui": "^0.19.7",
+		"clsx": "^2.1.0",
+		"firebase": "^10.8.1",
+		"lucide-svelte": "^0.358.0",
+		"tailwind-merge": "^2.2.1",
+		"tailwind-variants": "^0.2.1"
 	}
 }
