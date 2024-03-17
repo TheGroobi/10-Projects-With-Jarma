@@ -1,15 +1,31 @@
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit'
 import { db } from '$lib/firebase'
-import { doc, getDoc, collection, updateDoc, Timestamp } from 'firebase/firestore'
+import { doc, getDocs, collection, updateDoc, Timestamp } from 'firebase/firestore'
 
 export const PATCH: RequestHandler = async ({ request, cookies }) => {
     const uid = cookies.get('uid')
-    const docRef = doc(db, 'users', `${uid}`)
-    const searchVal = await request.json()
-    const notes = await (await getDoc(docRef)).data()
+    const docUserRef = doc(db, 'users', `${uid}`)
+    const userCol = collection(docUserRef, 'notes')
+    const notesSnap = getDocs(userCol)
+    const data = await request.json()
 
-    return json({ notes })
+    const notesData = (await notesSnap).docs.map(doc => doc.data())
+    const idsData = (await notesSnap).docs.map(doc => doc.id)
+    
+    let notes: any = []
+    let ids: any = []
+    notesData.forEach((note, i) => {
+        if ((note.title).includes(data.searchVal)) {
+            notes = [...notes, {
+                content: note.content,
+                title: note.title,
+                date: note.date = new Date(note?.date.seconds * 1000).toLocaleString(),
+            }]
+            ids = [...ids, idsData[i]]
+        }
+    })
+    return json({ notes, ids })
 };
 
 export const PUT: RequestHandler = async ({ request, cookies }) => {

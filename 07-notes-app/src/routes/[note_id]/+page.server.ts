@@ -7,11 +7,14 @@ export const load = (async ({ params, cookies }) => {
     const id = params.note_id
     
     const docUserRef = doc(db, 'users', `${uid}`)
-    const snapUser = getDoc(docUserRef)
-    const userData = (await snapUser).data()
     const userCol = collection(docUserRef, 'notes')
+    
+    
     const docNoteRef = doc(userCol, `${id}`)
+    const snapUser = getDoc(docUserRef)
     const snapNote = getDoc(docNoteRef)
+
+    const userData = (await snapUser).data()
     const noteData = (await snapNote).data()
 
     if (noteData !== undefined) {

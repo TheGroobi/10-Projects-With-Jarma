@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { enhance } from '$app/forms';
-	import { handleEnterSubmit, clickOutside } from '$lib/index';
+	import { clickOutside } from '$lib/index';
 	export let inputVal: string = '';
 	export let showModal: boolean;
 
 	let dialog: HTMLDialogElement;
-	let formEl: HTMLFormElement;
 	let error: string = '';
 
 	$: if (dialog && showModal) dialog.showModal();
@@ -36,7 +35,6 @@
 		<form
 			on:click|stopPropagation
 			on:submit|preventDefault={handleSubmit}
-			bind:this={formEl}
 			class="flex gap-4 flex-col"
 			method="POST"
 			action="?/createNote"
@@ -47,7 +45,6 @@
 					type="text"
 					name="noteTitle"
 					bind:value={inputVal}
-					on:keydown={e => handleEnterSubmit(e, formEl)}
 					class="px-3 py-2 text-xl bg-bg-secondary rounded-lg w-full text-text-white focus:outline-none focus:bg-bg-secondaryActive transition-colors"
 					placeholder="Tytuł nowej notatki" />
 				{#if error !== ''}

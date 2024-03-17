@@ -38,6 +38,7 @@
 				});
 				const data = await res.json();
 				notes = data?.notes;
+				ids = data?.ids;
 			}, 350);
 		}
 	}
@@ -47,6 +48,8 @@
 			deleteButtonDisabled = false;
 		}, 300);
 	}
+
+	$: console.log(deleteNoteId)
 </script>
 
 <AuthCheck>
@@ -79,7 +82,7 @@
 				<SearchIcon />
 			</label>
 		</form>
-		{#if notes.length > 0}
+		{#if notes && notes.length > 0}
 			<section class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
 				{#each notes as n, i}
 					<div class="bg-bg-main p-8 flex flex-col justify-between">
