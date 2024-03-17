@@ -4,6 +4,7 @@
 	import { enhance } from '$app/forms';
 	export let showDeleteModal: boolean = false;
 	export let deleteNoteId: string;
+	export let inputVal: string
 
 	let dialog: HTMLDialogElement;
 
@@ -36,7 +37,7 @@
 			<button
 				class="px-8 py-2 leading-[150%] bg-brand rounded-lg grid place-items-center text-bg-main hover:text-bg-secondary shadow-black/50 shadow-md hover:bg-brandHov transition-all font-bold"
 				type="submit"
-				on:click>Usuń notatkę</button>
+				on:click={() => (inputVal = '')}>Usuń notatkę</button>
 		</form>
 		<button
 			on:click={() => (showDeleteModal = false)}

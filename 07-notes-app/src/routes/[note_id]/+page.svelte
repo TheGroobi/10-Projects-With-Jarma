@@ -18,6 +18,8 @@
 	let noteDate: string = data?.date;
 	$: saveStatus = form?.saveStatus;
 
+	let inputVal: string;
+
 	let showDeleteModal: boolean = false;
 
 	let autosaveToggle: boolean = data?.toggle;
@@ -69,7 +71,6 @@
 		toggleDisabled = true;
 		setTimeout(() => (toggleDisabled = false), 350);
 
-		console.log('asd');
 		const res = await fetch('/api', {
 			method: 'POST',
 			body: JSON.stringify({
@@ -79,6 +80,7 @@
 				'Content-Type': 'application/json',
 			},
 		});
+		console.log(await res.json());
 	}
 </script>
 
@@ -92,7 +94,7 @@
 {:else}
 	<AuthCheck>
 		{#if showDeleteModal}
-			<ModalDeleteNote bind:showDeleteModal deleteNoteId={$page.params.note_id} />
+			<ModalDeleteNote bind:showDeleteModal deleteNoteId={$page.params.note_id} {inputVal} />
 		{/if}
 		<div
 			class="mx-8 mt-8 w-[calc(100vw - 4rem)]"
@@ -149,6 +151,7 @@
 						<input
 							id="title"
 							name="title"
+							on:keydown={handleAutosave}
 							class="font-extrabold tracking-[-0.036rem] w-full text-clampHuge leading-[3rem] bg-bg-main min-h-16 text-text-white overflow-y-auto resize-none text-center"
 							bind:value={noteTitle}
 							placeholder="Twój tytuł notatki..." />

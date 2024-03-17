@@ -1,22 +1,23 @@
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit'
 import { db } from '$lib/firebase'
-import { doc, getDocs, collection, updateDoc, Timestamp } from 'firebase/firestore'
+import { doc, getDocs, collection, updateDoc, Timestamp, setDoc } from 'firebase/firestore'
 
 export const PATCH: RequestHandler = async ({ request, cookies }) => {
     const uid = cookies.get('uid')
     const docUserRef = doc(db, 'users', `${uid}`)
     const userCol = collection(docUserRef, 'notes')
     const notesSnap = getDocs(userCol)
-    const data = await request.json()
+
+    const res = await request.json()
 
     const notesData = (await notesSnap).docs.map(doc => doc.data())
     const idsData = (await notesSnap).docs.map(doc => doc.id)
-    
+
     let notes: any = []
     let ids: any = []
     notesData.forEach((note, i) => {
-        if ((note.title).includes(data.searchVal)) {
+        if ((note.title).includes(res.inputVal)) {
             notes = [...notes, {
                 content: note.content,
                 title: note.title,
@@ -35,8 +36,8 @@ export const PUT: RequestHandler = async ({ request, cookies }) => {
 };
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-    const res = await request.json()
     const uid = cookies.get('uid')
+    const res = await request.json()
 
     const docUserRef = doc(db, 'users', `${uid}`)
     const userCol = collection(docUserRef, 'notes')
@@ -48,10 +49,10 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
             'date': Timestamp.fromDate(new Date()),
         })
         return json({ saveStatus: 'Autozapis, zapisano notatkę!' })
+    } else {
+        await setDoc(docUserRef, {
+            toggle: res.toggle
+        })
     }
-
-    await updateDoc(docUserRef, {
-        toggle: res.toggle
-    })
     return new Response()
 }

@@ -15,7 +15,7 @@
 	$: notes = data?.notes;
 	$: ids = data?.ids;
 
-	let searchVal: string = '';
+	let inputVal: string = '';
 	let showModal: boolean = false;
 	let showDeleteModal: boolean = false;
 	let deleteButtonDisabled = false;
@@ -31,7 +31,7 @@
 			debounceTimer = setTimeout(async () => {
 				const res = await fetch('/api', {
 					method: 'PATCH',
-					body: JSON.stringify({ searchVal }),
+					body: JSON.stringify({ inputVal }),
 					headers: {
 						'Content-Type': 'application/json',
 					},
@@ -49,7 +49,6 @@
 		}, 300);
 	}
 
-	$: console.log(deleteNoteId)
 </script>
 
 <AuthCheck>
@@ -67,13 +66,13 @@
 		{#if showModal}
 			<ModalAddNote bind:showModal />
 		{:else if showDeleteModal}
-			<ModalDeleteNote bind:showDeleteModal {deleteNoteId} />
+			<ModalDeleteNote bind:showDeleteModal {deleteNoteId} bind:inputVal />
 		{/if}
 		<form class="w-full">
 			<label for="searchNote" class="relative flex justify-between">
 				<input
 					on:keydown={e => filterNotes(e)}
-					bind:value={searchVal}
+					bind:value={inputVal}
 					class="px-4 py-[0.88rem] bg-bg-main rounded-lg text-sm w-full focus:outline-none focus:bg-bg-mainActive transition-colors"
 					id="searchNote"
 					name="searchNote"

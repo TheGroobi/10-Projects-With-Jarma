@@ -9,7 +9,6 @@ export const load = (async ({ params, cookies }) => {
     const docUserRef = doc(db, 'users', `${uid}`)
     const userCol = collection(docUserRef, 'notes')
     
-    
     const docNoteRef = doc(userCol, `${id}`)
     const snapUser = getDoc(docUserRef)
     const snapNote = getDoc(docNoteRef)
