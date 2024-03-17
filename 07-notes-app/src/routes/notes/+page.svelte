@@ -7,6 +7,7 @@
 	import AuthCheck from '$lib/components/AuthCheck.svelte';
 	import ModalAddNote from '$lib/components/ModalAddNote.svelte';
 	import ModalDeleteNote from '$lib/components/ModalDeleteNote.svelte';
+	import { serializeText } from '$lib/index';
 
 	// add ts annotation here
 	export let data: any;
@@ -48,7 +49,6 @@
 			deleteButtonDisabled = false;
 		}, 300);
 	}
-
 </script>
 
 <AuthCheck>
@@ -96,7 +96,7 @@
 								{n.date}
 							</p>
 							<p class="font-normal text-clampMedium line-clamp-3">
-								{n.content}
+								{serializeText(n.content)}
 							</p>
 						</div>
 						<form

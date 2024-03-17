@@ -85,3 +85,6 @@ export const clickOutside: clickOutsideAction = element => {
     };
 };
 
+export function serializeText(text: string) {
+    return text.replace(/<[^>]*>?/gm, '');
+}
