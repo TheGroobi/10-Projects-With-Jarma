@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
-class endpoint extends Controller
+class MoviesController extends Controller
 {
     //
     function searchMovie(Request $request)
@@ -43,4 +43,4 @@ class endpoint extends Controller
 
         return response()->json($body, 200);
     }
-};
+}
