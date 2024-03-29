@@ -1,17 +1,23 @@
 <script lang="ts">
-	import SearchIcon from '$lib/icons/SearchIcon.svelte';
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import RatingIcon from '$lib/icons/RatingIcon.svelte';
+	import SearchIcon from '$lib/icons/SearchIcon.svelte';
 
 	export let data;
 	$: movies = data.movies.results;
 	$: console.log(data.movies);
+
+	function handleRedirect(id: Number) {
+		setTimeout(() => goto(`/${id}`), 100);
+	}
 </script>
 
-<section class="grid grid-cols-1 3xl:grid-cols-2 gap-6">
+<section class="grid grid-cols-1 3xl:grid-cols-2 gap-6 w-full">
 	<form class="col-span-full">
 		<label for="title" class="relative flex justify-between">
 			<input
-				class="px-4 py-[0.88rem] bg-bg-main rounded-lg text-sm w-full focus:outline-none focus:bg-bg-mainActive transition-colors text-text-white"
+				class="px-4 py-[0.88rem] bg-bg-main rounded-lg text-clampSmall min-[700px]:text-sm w-full focus:outline-none focus:bg-bg-mainActive transition-colors text-text-white"
 				id="title"
 				name="title"
 				type="text"
@@ -45,6 +51,7 @@
 					{m.overview}
 				</p>
 				<button
+					on:click={() => handleRedirect(m.id)}
 					class="px-4 min-[700px]:px-8 py-1 min-[700px]:py-2 min-[700px]:text-base text-[0.5rem] bg-bg-secondary rounded-lg font-bold text-text-white w-max mt-auto"
 					>Dowiedz się więcej</button>
 			</div>

@@ -11,3 +11,6 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/trending', [MoviesController::class, 'trendingMovies']);
 Route::get('/search', [MoviesController::class, 'searchMovie']);
+Route::get('/id', [MoviesController::class, 'movieById']);
+Route::get('/cast', [MoviesController::class, 'getCast']);
+Route::get('/images', [MoviesController::class, 'getImages']);
