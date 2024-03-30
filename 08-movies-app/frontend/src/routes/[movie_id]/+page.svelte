@@ -12,8 +12,6 @@
 	let images = data.images;
 	let cast = data.cast;
 
-	console.log(movie);
-
 	$: if (form) {
 		window.open(form?.link);
 	}

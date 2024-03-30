@@ -2,15 +2,23 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import RatingIcon from '$lib/icons/RatingIcon.svelte';
+	import Next from '$lib/icons/Next.svelte';
+	import NextTen from '$lib/icons/NextTen.svelte';
+	import PreviousTen from '$lib/icons/PreviousTen.svelte';
+	import Previous from '$lib/icons/Previous.svelte';
 	import SearchIcon from '$lib/icons/SearchIcon.svelte';
+	import { handleEnterSubmit } from '$lib/index';
 
 	export let data;
+	export let form;
 	let currentPage: number = data.movies.page;
-	let totalPages: number = data.movies.total_pages;
+	let totalPages: number = 500;
 	$: movies = data.movies.results;
-	$: console.log(data.movies);
 
-	let pages: Page[] = [
+	let clickedPage: number = currentPage;
+	let formEl: HTMLFormElement;
+
+	$: pages = [
 		{ page: currentPage - 4, current: false },
 		{ page: currentPage - 3, current: false },
 		{ page: currentPage - 2, current: false },
@@ -25,6 +33,29 @@
 	function handleRedirect(id: Number) {
 		setTimeout(() => goto(`/${id}`), 100);
 	}
+
+	function previousTen() {
+		if (currentPage > 10) {
+			return (clickedPage = currentPage - 10);
+		} else {
+			return (clickedPage = 1);
+		}
+	}
+
+	function nextTen() {
+		if (currentPage < totalPages - 10) {
+			return (clickedPage = currentPage + 10);
+		} else {
+			return (clickedPage = 500);
+		}
+	}
+
+	$: if (form) {
+		movies = form.updatedMovies.results;
+		currentPage = form.updatedMovies.page;
+	}
+
+	$: console.log(currentPage);
 </script>
 
 <section class="grid grid-cols-1 3xl:grid-cols-2 gap-6 w-full">
@@ -71,21 +102,95 @@
 			</div>
 		</div>
 	{/each}
-	<form action="page" class="flex justify-center gap-2">
-		{#each pages as p}
-			{#if p.page > 0 && !p.current}
-				<button class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
-					>{p.page}</button>
-			{:else if p.current}
-				<button class="px-2 py-1 font-bold text-text-white rounded-md bg-bg-main"
+	<form
+		class="flex justify-center gap-2 col-span-full"
+		use:enhance
+		method="POST"
+		action="?/page"
+		bind:this={formEl}>
+		<input type="hidden" bind:value={clickedPage} name="page" />
+		{#if currentPage !== 1 && currentPage < 5}
+			<button
+				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={previousTen}>
+				<PreviousTen />
+			</button>
+			<button
+				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={() => (clickedPage = currentPage - 1)}>
+				<Previous />
+			</button>
+		{:else if currentPage > 5}
+			<button
+				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={previousTen}>
+				<PreviousTen />
+			</button>
+			<button
+				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={() => (clickedPage = currentPage - 1)}>
+				<Previous />
+			</button>
+			<button
+				class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={() => (clickedPage = 1)}>1</button>
+		{/if}
+		{#each pages as p, i}
+			{#if p.page > 0 && !p.current && p.page < totalPages}
+				<button
+					class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
+					type="submit"
+					on:click={() => (clickedPage = pages[i].page)}>{p.page}</button>
+			{:else if p.current && p.page !== totalPages}
+				<button class="px-2 py-1 font-bold text-text-white rounded-md bg-bg-main" disabled
 					>{p.page}</button>
 			{/if}
 		{/each}
-		<input
-			type="number"
-			class="w-8 border-2 rounded-lg bg-bg-secondary border-slate-800 text-center"
-			placeholder="..." />
-		<button class="px-2 py-1 font-bold text-text-white rounded-md bg-bg-main"
-			>{totalPages}</button>
+
+		{#if currentPage !== totalPages}
+			<!-- doesn't work????
+		////////////////////////////////////////////////////////// -->
+			<input
+				type="number"
+				class="max-w-12 px-1 border-2 rounded-lg bg-bg-secondary focus:border-slate-900 focus-border-3 border-slate-800 text-center text-text-white outline-none"
+				placeholder="..."
+				on:keypress={e => handleEnterSubmit(formEl)}
+				max={totalPages} />
+			<button
+				class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
+				on:click={() => (clickedPage = totalPages)}>{totalPages}</button>
+			<button
+				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={() => (clickedPage = currentPage + 1)}>
+				<Next />
+			</button>
+			<button
+				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
+				type="submit"
+				on:click={nextTen}>
+				<NextTen />
+			</button>
+		{:else if currentPage === totalPages}
+			<input
+				type="number"
+				class="max-w-12 px-1 border-2 rounded-lg bg-bg-secondary focus:border-slate-900 focus-border-3 border-slate-800 text-center text-text-white outline-none"
+				placeholder="..."
+				on:keypress={e => handleEnterSubmit(formEl)}
+				max={totalPages} />
+			<button
+				class="px-2 py-1 font-regular text-text-white font-bold rounded-md bg-bg-main"
+				disabled>{totalPages}</button>
+		{/if}
 	</form>
 </section>
+<!-- 
+to do:
+hook up the pagination buttons to a form sending the clicked number
+fetch the api with the current thing + page
+-->
