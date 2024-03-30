@@ -26,17 +26,26 @@ class MoviesController extends Controller
         return response()->json($body, 200);
     }
 
-    function trendingMovies()
+    function trendingMovies(Request $request)
     {
         $c = new \GuzzleHttp\Client();
-
-        $res = $c->request('GET', 'https://api.themoviedb.org/3/trending/movie/week?language=pl', [
-            'headers' => [
-                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYzI4NzkzYjY5NjJiMmFkYzFhYjFkYzU3NjMzOTExNiIsInN1YiI6IjY2MDE1YmJlNzcwNzAwMDE2MzBiMDU5MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cIRh06dIYZKdfCDZSvNXb8L7hWhbX1fMDjg_rYBwfvs',
-                'accept' => 'application/json',
-                'Content-Type' => 'application/json'
-            ],
-        ]);
+        if ($request->page) {
+            $res = $c->request('GET', 'https://api.themoviedb.org/3/trending/movie/week?language=pl&page=' . $request->page, [
+                'headers' => [
+                    'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYzI4NzkzYjY5NjJiMmFkYzFhYjFkYzU3NjMzOTExNiIsInN1YiI6IjY2MDE1YmJlNzcwNzAwMDE2MzBiMDU5MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cIRh06dIYZKdfCDZSvNXb8L7hWhbX1fMDjg_rYBwfvs',
+                    'accept' => 'application/json',
+                    'Content-Type' => 'application/json'
+                ],
+            ]);
+        } else {
+            $res = $c->request('GET', 'https://api.themoviedb.org/3/trending/movie/week?language=pl', [
+                'headers' => [
+                    'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYzI4NzkzYjY5NjJiMmFkYzFhYjFkYzU3NjMzOTExNiIsInN1YiI6IjY2MDE1YmJlNzcwNzAwMDE2MzBiMDU5MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cIRh06dIYZKdfCDZSvNXb8L7hWhbX1fMDjg_rYBwfvs',
+                    'accept' => 'application/json',
+                    'Content-Type' => 'application/json'
+                ],
+            ]);
+        }
 
         $b = $res->getBody()->getContents();
         $body = json_decode($b);
