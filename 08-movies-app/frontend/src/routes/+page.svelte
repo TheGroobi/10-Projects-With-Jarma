@@ -54,8 +54,6 @@
 		movies = form.updatedMovies.results;
 		currentPage = form.updatedMovies.page;
 	}
-
-	$: console.log(movies);
 </script>
 
 <section class="grid grid-cols-1 3xl:grid-cols-2 gap-6 w-full">
@@ -124,7 +122,7 @@
 				on:click={() => (clickedPage = currentPage - 1)}>
 				<Previous />
 			</button>
-		{:else if currentPage > 5}
+		{:else if currentPage >= 5}
 			<button
 				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
 				type="submit"
@@ -162,7 +160,8 @@
 				class="max-w-12 px-1 border-2 rounded-lg bg-bg-secondary focus:border-slate-900 focus-border-3 border-slate-800 text-center text-text-white outline-none"
 				placeholder="..."
 				on:keypress={e => handleEnterSubmit(formEl)}
-				max={totalPages} />
+				max={totalPages}
+				bind:value={clickedPage} />
 			<button
 				class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
 				on:click={() => (clickedPage = totalPages)}>{totalPages}</button>
