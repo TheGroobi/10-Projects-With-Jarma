@@ -7,7 +7,6 @@
 	import PreviousTen from '$lib/icons/PreviousTen.svelte';
 	import Previous from '$lib/icons/Previous.svelte';
 	import SearchIcon from '$lib/icons/SearchIcon.svelte';
-	import { handleEnterSubmit } from '$lib/index';
 
 	export let data;
 	export let form;
@@ -16,7 +15,6 @@
 	$: movies = data.movies.results;
 
 	let clickedPage: number = currentPage;
-	let formEl: HTMLFormElement;
 
 	$: pages = [
 		{ page: currentPage - 4, current: false },
@@ -102,12 +100,7 @@
 			</div>
 		</div>
 	{/each}
-	<form
-		class="flex justify-center gap-2 col-span-full"
-		use:enhance
-		method="POST"
-		action="?/page"
-		bind:this={formEl}>
+	<form class="flex justify-center gap-2 col-span-full" use:enhance method="POST" action="?/page">
 		<input type="hidden" bind:value={clickedPage} name="page" />
 		{#if currentPage !== 1 && currentPage < 5}
 			<button
@@ -155,13 +148,6 @@
 		{#if currentPage !== totalPages}
 			<!-- doesn't work????
 		////////////////////////////////////////////////////////// -->
-			<input
-				type="number"
-				class="max-w-12 px-1 border-2 rounded-lg bg-bg-secondary focus:border-slate-900 focus-border-3 border-slate-800 text-center text-text-white outline-none"
-				placeholder="..."
-				on:keypress={e => handleEnterSubmit(formEl)}
-				max={totalPages}
-				bind:value={clickedPage} />
 			<button
 				class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
 				on:click={() => (clickedPage = totalPages)}>{totalPages}</button>
@@ -178,12 +164,6 @@
 				<NextTen />
 			</button>
 		{:else if currentPage === totalPages}
-			<input
-				type="number"
-				class="max-w-12 px-1 border-2 rounded-lg bg-bg-secondary focus:border-slate-900 focus-border-3 border-slate-800 text-center text-text-white outline-none"
-				placeholder="..."
-				on:keypress={e => handleEnterSubmit(formEl)}
-				max={totalPages} />
 			<button
 				class="px-2 py-1 font-regular text-text-white font-bold rounded-md bg-bg-main"
 				disabled>{totalPages}</button>
