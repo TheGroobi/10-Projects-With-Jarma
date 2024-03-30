@@ -53,3 +53,7 @@ interface MovieCast {
     credit_id: string,
     order: number
 }
+interface Page {
+    page: number,
+    current: boolean,
+}

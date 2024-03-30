@@ -1,3 +1,4 @@
+
 export async function load({ params }) {
     const resMovie = await fetch('http://127.0.0.1:8000/api/id?movie_id=' + params.movie_id);
     const movie: Movie = await resMovie.json();
@@ -7,11 +8,21 @@ export async function load({ params }) {
 
     const resImages = await fetch('http://127.0.0.1:8000/api/images?movie_id=' + params.movie_id);
     const images: MovieImage[] = (await resImages.json()).backdrops.slice(0, 4);
-    console.log(cast)
 
     return { 
         movie,
         cast,
         images
     };
+}
+
+export const actions = {
+	default: async ({ params }) => {
+        const res = await fetch('http://127.0.0.1:8000/api/trailer?movie_id=' + params.movie_id);
+        const link = 'https://www.youtube.com/watch?v=' + (await res.json()).results[0].key
+        
+        return {
+            link
+        }
+    },
 }

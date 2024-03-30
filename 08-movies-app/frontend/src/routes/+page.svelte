@@ -5,8 +5,22 @@
 	import SearchIcon from '$lib/icons/SearchIcon.svelte';
 
 	export let data;
+	let currentPage: number = data.movies.page;
+	let totalPages: number = data.movies.total_pages;
 	$: movies = data.movies.results;
 	$: console.log(data.movies);
+
+	let pages: Page[] = [
+		{ page: currentPage - 4, current: false },
+		{ page: currentPage - 3, current: false },
+		{ page: currentPage - 2, current: false },
+		{ page: currentPage - 1, current: false },
+		{ page: currentPage, current: true },
+		{ page: currentPage + 1, current: false },
+		{ page: currentPage + 2, current: false },
+		{ page: currentPage + 3, current: false },
+		{ page: currentPage + 4, current: false },
+	];
 
 	function handleRedirect(id: Number) {
 		setTimeout(() => goto(`/${id}`), 100);
@@ -57,4 +71,21 @@
 			</div>
 		</div>
 	{/each}
+	<form action="page" class="flex justify-center gap-2">
+		{#each pages as p}
+			{#if p.page > 0 && !p.current}
+				<button class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
+					>{p.page}</button>
+			{:else if p.current}
+				<button class="px-2 py-1 font-bold text-text-white rounded-md bg-bg-main"
+					>{p.page}</button>
+			{/if}
+		{/each}
+		<input
+			type="number"
+			class="w-8 border-2 rounded-lg bg-bg-secondary border-slate-800 text-center"
+			placeholder="..." />
+		<button class="px-2 py-1 font-bold text-text-white rounded-md bg-bg-main"
+			>{totalPages}</button>
+	</form>
 </section>

@@ -14,3 +14,4 @@ Route::get('/search', [MoviesController::class, 'searchMovie']);
 Route::get('/id', [MoviesController::class, 'movieById']);
 Route::get('/cast', [MoviesController::class, 'getCast']);
 Route::get('/images', [MoviesController::class, 'getImages']);
+Route::get('/trailer', [MoviesController::class, 'getTrailerURL']);

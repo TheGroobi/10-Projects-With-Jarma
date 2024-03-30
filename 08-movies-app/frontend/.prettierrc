@@ -8,6 +8,7 @@
 	"printWidth": 100,
 	"arrowParens": "avoid",
 	"plugins": ["prettier-plugin-svelte"],
+	"parser": "svelte",
 	"overrides": [
 		{
 			"files": ["*.svelte", "*.ts", "*.js"],
@@ -16,4 +17,5 @@
 			}
 		}
 	]
+	
 }

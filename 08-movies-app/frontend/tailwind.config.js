@@ -16,6 +16,9 @@ export default {
         'clampMediumSmall': 'clamp(0.5rem, 0.0500rem + 1.6000vw, 0.75rem)',
         'clampSmall': 'clamp(0.6125rem, 0.1750rem + 0.5833vw, 0.875rem)',
         'clampSmallSmall': 'clamp(0.375rem, -0.0525rem + 1.5200vw, 0.6125rem)',
+        'clampActor': 'clamp(1rem, -0.3462rem + 1.5385vw, 1.5rem)',
+        'clampChar': 'clamp(0.75rem, -0.5962rem + 1.5385vw, 1.25rem)',
+        'clampOverview': 'clamp(0.6125rem, -0.3250rem + 1.8750vw, 0.875rem)',
       },
       screens: {
         '3xl': '1400px',

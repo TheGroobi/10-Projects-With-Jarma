@@ -94,4 +94,21 @@ class MoviesController extends Controller
 
         return response()->json($body, 200);
     }
+    function getTrailerURL(Request $request)
+    {
+        $c = new \GuzzleHttp\Client();
+
+        $res = $c->request('GET', 'https://api.themoviedb.org/3/movie/' . $request->movie_id . '/videos?language=pl', [
+            'headers' => [
+                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYzI4NzkzYjY5NjJiMmFkYzFhYjFkYzU3NjMzOTExNiIsInN1YiI6IjY2MDE1YmJlNzcwNzAwMDE2MzBiMDU5MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cIRh06dIYZKdfCDZSvNXb8L7hWhbX1fMDjg_rYBwfvs',
+                'accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+        ]);
+
+        $b = $res->getBody()->getContents();
+        $body = json_decode($b);
+
+        return response()->json($body, 200);
+    }
 }

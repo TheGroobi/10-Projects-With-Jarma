@@ -8,7 +8,6 @@ export async function load() {
 }
 
 export const actions = {
-	default: async ({ request }) => {
-	
+	page: async ({ request }) => {
     },
 }
