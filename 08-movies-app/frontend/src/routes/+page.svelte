@@ -54,12 +54,10 @@
 		movies = form.updatedMovies.results;
 		currentPage = form.updatedMovies.page;
 	}
-
-	$: console.log(currentPage);
 </script>
 
 <section class="grid grid-cols-1 3xl:grid-cols-2 gap-6 w-full">
-	<form class="col-span-full">
+	<form class="col-span-full" action="?/search" method="POST">
 		<label for="title" class="relative flex justify-between">
 			<input
 				class="px-4 py-[0.88rem] bg-bg-main rounded-lg text-clampSmall min-[700px]:text-sm w-full focus:outline-none focus:bg-bg-mainActive transition-colors text-text-white"
@@ -73,10 +71,12 @@
 	{#each movies as m (m)}
 		<div
 			class="flex gap-3 min-[850px]:max-h-[26.0625rem] min-[700px]:max-h-[22rem] min-[500px]:max-h-[16rem] max-h-[12rem]">
-			<img
-				src={'https://image.tmdb.org/t/p/w342/' + m.poster_path}
-				alt="Plakat {m.title}"
-				class="rounded-lg object-scale-down max-w-full max-h-full" />
+			{#if m.poster_path}
+				<img
+					src={'https://image.tmdb.org/t/p/w342/' + m.poster_path}
+					alt="Plakat {m.title}"
+					class="rounded-lg object-cover max-w-[17.375rem] max-h-full" />
+			{/if}
 			<div class="flex flex-col p-5 bg-bg-main rounded-lg w-full gap-1 min-[700px]:gap-5">
 				<h1
 					class="text-text-white font-semibold min-[700px]:line-clamp-2 text-clampBigSmall min-[700px]:text-clampBig leading-[150%] tracking-[-0.01406rem] break-all 3xl:break-normal">
@@ -122,7 +122,7 @@
 				on:click={() => (clickedPage = currentPage - 1)}>
 				<Previous />
 			</button>
-		{:else if currentPage > 5}
+		{:else if currentPage >= 5}
 			<button
 				class="px-1 font-regular text-text-gray rounded-md bg-bg-main"
 				type="submit"
@@ -160,7 +160,8 @@
 				class="max-w-12 px-1 border-2 rounded-lg bg-bg-secondary focus:border-slate-900 focus-border-3 border-slate-800 text-center text-text-white outline-none"
 				placeholder="..."
 				on:keypress={e => handleEnterSubmit(formEl)}
-				max={totalPages} />
+				max={totalPages}
+				bind:value={clickedPage} />
 			<button
 				class="px-2 py-1 font-regular text-text-gray rounded-md bg-bg-main"
 				on:click={() => (clickedPage = totalPages)}>{totalPages}</button>
@@ -189,8 +190,3 @@
 		{/if}
 	</form>
 </section>
-<!-- 
-to do:
-hook up the pagination buttons to a form sending the clicked number
-fetch the api with the current thing + page
--->

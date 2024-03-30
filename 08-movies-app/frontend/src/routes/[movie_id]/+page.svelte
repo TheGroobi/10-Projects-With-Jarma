@@ -12,7 +12,7 @@
 	let images = data.images;
 	let cast = data.cast;
 
-	$: if (form) {
+	$: if (form?.link) {
 		window.open(form?.link);
 	}
 </script>
@@ -26,19 +26,45 @@
 		</button>
 	</div>
 	<section class="items-center max-w-full flex lg:flex-row flex-col lg:gap-0 gap-4">
-		<div class="relative">
-			<img
-				src={'https://image.tmdb.org/t/p/original/' + movie.poster_path}
-				alt="Plakat {movie.title}"
-				class="w-full object-cover" />
-			<form method="POST" use:enhance class="group flex justify-center">
-				<button
-					type="submit"
-					class="lg:px-8 py-2 rounded-lg text-sm lg:text-base text-text-white font-bold z-10 bottom-6 left-1/2 right-1/2 items-center absolute bg-bg-secondary w-max -translate-x-1/2 flex gap-4 group-hover:text-text-gray group-hover:bg-slate-800 transition-all px-4">
-					<PlayIcon />
-					Zobacz Zwiastun</button>
-			</form>
-		</div>
+		{#if !movie.poster_path}
+			<div class="w-full">
+				<div class="relative">
+					<h1
+						class="text-text-white font-semibold bg-bg-main px-12 py-8 pb-24 rounded-lg text-center">
+						Plakat niedostępny dla tego filmu
+					</h1>
+					<form method="POST" use:enhance class="group">
+						<button
+							type="submit"
+							class="lg:px-8 py-2 rounded-lg text-sm lg:text-base text-text-white font-bold z-10 left-1/2 bottom-10 items-center absolute bg-bg-secondary w-max -translate-x-1/2 flex gap-4 group-hover:text-text-gray group-hover:bg-slate-800 transition-all px-4">
+							<PlayIcon />
+							Zobacz Zwiastun</button>
+					</form>
+				</div>
+				{#if form?.error}
+					<p class="text-center text-red-500 mt-4">{form?.error}</p>
+				{/if}
+			</div>
+		{:else}
+			<div>
+				<div class="relative">
+					<img
+						src={'https://image.tmdb.org/t/p/original/' + movie.poster_path}
+						alt="Plakat {movie.title}"
+						class="w-full object-cover" />
+					<form method="POST" use:enhance class="group flex justify-center">
+						<button
+							type="submit"
+							class="lg:px-8 py-2 rounded-lg text-sm lg:text-base text-text-white font-bold z-10 bottom-6 left-1/2 right-1/2 items-center absolute bg-bg-secondary w-max -translate-x-1/2 flex gap-4 group-hover:text-text-gray group-hover:bg-slate-800 transition-all px-4">
+							<PlayIcon />
+							Zobacz Zwiastun</button>
+					</form>
+				</div>
+				{#if form?.error}
+					<p class="text-center text-red-500 mt-4">{form?.error}</p>
+				{/if}
+			</div>
+		{/if}
 		<div
 			class="flex flex-col p-5 bg-bg-main rounded-lg gap-1 min-[700px]:gap-5 h-full lg:ml-20 lg:max-w-[40vw]">
 			<div class="flex justify-between xl:flex-row flex-col">
