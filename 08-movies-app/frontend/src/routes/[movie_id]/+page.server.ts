@@ -19,10 +19,17 @@ export async function load({ params }) {
 export const actions = {
 	default: async ({ params }) => {
         const res = await fetch('http://127.0.0.1:8000/api/trailer?movie_id=' + params.movie_id);
-        const link = 'https://www.youtube.com/watch?v=' + (await res.json()).results[0].key
+        const data = await res.json();
+        console.log(data.results)
         
-        return {
-            link
+        if (data.results.length < 1) {
+            return { error: 'Ten film nie ma zwiastunu...'}
+        } else {
+            const key = data.results[0].key;
+            const link = 'https://www.youtube.com/watch?v=' + key
+            return {
+                link
+            }
         }
     },
 }

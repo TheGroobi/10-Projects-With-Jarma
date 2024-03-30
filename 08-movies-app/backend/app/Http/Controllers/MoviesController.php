@@ -11,14 +11,25 @@ class MoviesController extends Controller
     function searchMovie(Request $request)
     {
         $c = new Client();
+        
+        if ($request->page) {
+            $res = $c->request('GET', 'api.themoviedb.org/3/search/movie?query=' . $request->title . '&include_adult=false&language=pl&page=' . $request->page, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('MOVIE_ACCESS_TOKEN'),
+                    'accept' => 'application/json',
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
 
-        $res = $c->request('GET', 'api.themoviedb.org/3/search/movie?query=' . $request->title . '&include_adult=false&language=pl&page=' . $request->page, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . env('MOVIE_ACCESS_TOKEN'),
-                'accept' => 'application/json',
-                'Content-Type' => 'application/json'
-            ]
-        ]);
+        } else {
+            $res = $c->request('GET', 'api.themoviedb.org/3/search/movie?query=' . $request->title . '&include_adult=false&language=pl', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('MOVIE_ACCESS_TOKEN'),
+                    'accept' => 'application/json',
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
+        }
 
         $b = $res->getBody()->getContents();
         $body = json_decode($b);
@@ -29,6 +40,7 @@ class MoviesController extends Controller
     function trendingMovies(Request $request)
     {
         $c = new \GuzzleHttp\Client();
+
         if ($request->page) {
             $res = $c->request('GET', 'https://api.themoviedb.org/3/trending/movie/week?language=pl&page=' . $request->page, [
                 'headers' => [
@@ -37,6 +49,7 @@ class MoviesController extends Controller
                     'Content-Type' => 'application/json'
                 ],
             ]);
+            
         } else {
             $res = $c->request('GET', 'https://api.themoviedb.org/3/trending/movie/week?language=pl', [
                 'headers' => [
